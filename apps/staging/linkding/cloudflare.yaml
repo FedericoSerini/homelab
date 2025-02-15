@@ -79,3 +79,6 @@ data:
     ingress:
     - hostname: linkding.federicoserini.com
       service: http://linkding:9090
+
+    # This rule matches any traffic which didn't match a previous rule, and responds with HTTP 404.
+    - service: http_status:404
