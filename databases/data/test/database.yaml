@@ -1,0 +1,64 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: mariadb
+spec:
+  rootPasswordSecretKeyRef:
+    name: test-password-secret
+    key: root-password
+  port: 3306
+  storage:
+    size: 1Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 300Mi
+  podSecurityContext:
+    runAsUser: 0
+  securityContext:
+    allowPrivilegeEscalation: false
+  service:
+    type: LoadBalancer
+    metadata:
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: test-maria.federicoserini.com
+---
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Database
+metadata:
+  name: test-database
+spec:
+  mariaDbRef:
+    name: mariadb
+  name: test
+  characterSet: utf8
+  collate: utf8_general_ci
+---
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: User
+metadata:
+  name: test-user
+spec:
+  mariaDbRef:
+    name: mariadb
+  name: test
+  passwordSecretKeyRef:
+    name: test-password-secret
+    key: password
+  maxUserConnections: 10
+---
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Connection
+metadata:
+  name: test-connection
+spec:
+  mariaDbRef:
+    name: mariadb
+  username: test
+  passwordSecretKeyRef:
+    name: test-password-secret
+    key: password
+  database: test
+  secretName: test-password-secret
