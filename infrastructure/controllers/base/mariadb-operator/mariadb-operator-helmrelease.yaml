@@ -10,14 +10,14 @@ spec:
         kind: HelmRepository
         name: mariadb-operator
       version: "0.28.1"
-    interval: 1h0m0s
-    values:
-      metrics:
+  interval: 1h0m0s
+  values:
+    metrics:
+      enabled: true
+      serviceMonitor:
         enabled: true
-        serviceMonitor:
-          enabled: true
-      webhook:
-        cert:
-          certManager: false
-        serviceMonitor:
-          enabled: true
+    webhook:
+      cert:
+        certManager: false
+      serviceMonitor:
+        enabled: true
