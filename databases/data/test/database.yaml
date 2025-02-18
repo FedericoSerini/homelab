@@ -16,7 +16,9 @@ spec:
     limits:
       memory: 300Mi
   podSecurityContext:
-    runAsUser: 0
+    runAsUser: 999
+    runAsGroup: 999
+    fsGroup: 999
   securityContext:
     allowPrivilegeEscalation: false
   service:
