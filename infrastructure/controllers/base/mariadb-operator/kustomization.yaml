@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - mariadb-operator-helmrelease.yaml
   - mariadb-operator-helmrepository.yaml
-  - mariadb-operator-namespace
+  - mariadb-operator-namespace.yaml
