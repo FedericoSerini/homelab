@@ -13,12 +13,12 @@ spec:
   interval: 1h0m0s
   values:
     metrics:
-      enabled: true
+      enabled: false
       serviceMonitor:
-        enabled: true
+        enabled: false
     webhook:
       cert:
         certManager:
           enabled: false
       serviceMonitor:
-        enabled: true
+        enabled: false
