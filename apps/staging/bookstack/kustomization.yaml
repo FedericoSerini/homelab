@@ -3,6 +3,6 @@ kind: Kustomization
 namespace: bookstack
 resources:
   - ../../base/bookstack/
-  #- cloudflare.yaml
-  #- cloudflare-secret.yaml
+  - cloudflare.yaml
+  - cloudflare-secret.yaml
   - bookstack-secret.yaml
