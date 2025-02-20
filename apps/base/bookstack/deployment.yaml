@@ -12,10 +12,11 @@ spec:
       labels:
         app: bookstack
     spec:
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+      # uses root for init
+      #securityContext:
+      #  runAsUser: 1000
+      #  runAsGroup: 1000
+      #  fsGroup: 1000
       containers:
         - name: bookstack
           image: lscr.io/linuxserver/bookstack:24.12.1
@@ -33,4 +34,3 @@ spec:
         - name: bookstack-data
           persistentVolumeClaim:
             claimName: bookstack-data-pvc
-
