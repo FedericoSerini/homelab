@@ -4,7 +4,7 @@ metadata:
   name: bookstack
 spec:
   ports:
-    - port: 6875
+    - port: 80
   selector:
     app: bookstack
   type: ClusterIP

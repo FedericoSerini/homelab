@@ -78,7 +78,7 @@ data:
 
     ingress:
     - hostname: bookstack.federicoserini.com
-      service: https://bookstack:6875
+      service: http://bookstack:80
 
     # This rule matches any traffic which didn't match a previous rule, and responds with HTTP 404.
     - service: http_status:404
