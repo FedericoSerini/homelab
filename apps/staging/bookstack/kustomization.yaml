@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: bookstack
+resources:
+  - ../../base/bookstack/
+  #- cloudflare.yaml
+  #- cloudflare-secret.yaml
+  - bookstack-secret.yaml

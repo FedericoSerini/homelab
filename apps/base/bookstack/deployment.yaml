@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookstack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookstack
+  template:
+    metadata:
+      labels:
+        app: bookstack
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: bookstack
+          image: lscr.io/linuxserver/bookstack:24.12.1
+          ports:
+            - containerPort: 6875
+          volumeMounts:
+            - name: bookstack-data
+              mountPath: /bookstack_app_data
+          securityContext:
+            allowPrivilegeEscalation: false
+          envFrom:
+            - secretRef:
+                name: bookstack-secret
+      volumes:
+        - name: bookstack-data
+          persistentVolumeClaim:
+            claimName: bookstack-data-pvc
+
