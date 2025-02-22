@@ -58,7 +58,13 @@ metadata:
 spec:
   mariaDbRef:
     name: mariadb
-  privileges: ["CREATE, DELETE, INDEX, INSERT, UPDATE, SELECT"]
+  privileges:
+    - "CREATE"
+    - "DELETE"
+    - "INDEX"
+    - "INSERT"
+    - "UPDATE"
+    - "SELECT"
   database: bookstack
   username: bookstack
 ---
