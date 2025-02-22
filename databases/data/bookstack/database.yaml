@@ -65,6 +65,7 @@ spec:
     - "INSERT"
     - "UPDATE"
     - "SELECT"
+    - "ALTER"
   database: bookstack
   username: bookstack
 ---
