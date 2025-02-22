@@ -4,7 +4,7 @@ metadata:
   name: mariadb
 spec:
   rootPasswordSecretKeyRef:
-    name: bookstack-password-secret
+    name: bookstack-maria-secret
     key: root-password
   port: 3306
   storage:
@@ -47,9 +47,9 @@ spec:
     name: mariadb
   name: bookstack
   passwordSecretKeyRef:
-    name: bookstack-password-secret
+    name: bookstack-maria-secret
     key: password
-  maxUserConnections: 10
+  maxUserConnections: 5
 ---
 apiVersion: k8s.mariadb.com/v1alpha1
 kind: Grant
@@ -71,7 +71,7 @@ spec:
     name: mariadb
   username: bookstack
   passwordSecretKeyRef:
-    name: bookstack-password-secret
+    name: bookstack-maria-secret
     key: password
   database: bookstack
-  secretName: bookstack-password-secret
+  secretName: bookstack-maria-secret
