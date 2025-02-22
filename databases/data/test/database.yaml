@@ -4,7 +4,7 @@ metadata:
   name: mariadb
 spec:
   rootPasswordSecretKeyRef:
-    name: test-password-secret
+    name: bookstack-password-secret
     key: root-password
   port: 3306
   storage:
@@ -25,31 +25,42 @@ spec:
     type: LoadBalancer
     metadata:
       annotations:
-        external-dns.alpha.kubernetes.io/hostname: test-maria.federicoserini.com
+        external-dns.alpha.kubernetes.io/hostname: mariadb.federicoserini.com
 ---
 apiVersion: k8s.mariadb.com/v1alpha1
 kind: Database
 metadata:
-  name: test-database
+  name: bookstack-database
 spec:
   mariaDbRef:
     name: mariadb
-  name: test
+  name: bookstack
   characterSet: utf8
   collate: utf8_general_ci
 ---
 apiVersion: k8s.mariadb.com/v1alpha1
 kind: User
 metadata:
-  name: test-user
+  name: bookstack-user
 spec:
   mariaDbRef:
     name: mariadb
-  name: test
+  name: bookstack
   passwordSecretKeyRef:
-    name: test-password-secret
+    name: bookstack-password-secret
     key: password
   maxUserConnections: 10
+---
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Grant
+metadata:
+  name: bookstack-user-grant
+spec:
+  mariaDbRef:
+    name: mariadb
+  privileges: ["CREATE DELETE INDEX INSERT UPDATE SELECT"]
+  database: bookstack
+  username: bookstack
 ---
 apiVersion: k8s.mariadb.com/v1alpha1
 kind: Connection
@@ -58,9 +69,9 @@ metadata:
 spec:
   mariaDbRef:
     name: mariadb
-  username: test
+  username: bookstack
   passwordSecretKeyRef:
-    name: test-password-secret
+    name: bookstack-password-secret
     key: password
-  database: test
-  secretName: test-password-secret
+  database: bookstack
+  secretName: bookstack-password-secret
