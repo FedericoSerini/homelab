@@ -30,6 +30,16 @@ spec:
           envFrom:
             - secretRef:
                 name: bookstack-secret
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          livenessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 60
+            periodSeconds: 30
       volumes:
         - name: bookstack-data
           persistentVolumeClaim:
