@@ -8,6 +8,7 @@ spec:
   storage:
     s3:
       bucket: bookstack-mariadb-staging-backup
+      endpoint: s3.eu-central-1.amazonaws.com
       region: eu-central-1
       accessKeyIdSecretKeyRef:
         name: bookstack-maria-secret
