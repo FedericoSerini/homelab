@@ -29,6 +29,16 @@ spec:
           envFrom:
             - secretRef:
                 name: linkding-secret
+          readinessProbe:
+            tcpSocket:
+              port: 9090
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          livenessProbe:
+            tcpSocket:
+              port: 9090
+            initialDelaySeconds: 30
+            periodSeconds: 15
       volumes:
         - name: linkding-data
           persistentVolumeClaim:
