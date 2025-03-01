@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup-job
+spec:
+  schedule: "0 */3 * * *" # every 3 hours
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: backup-container
+              image: bitnami/git
+              command: ["/bin/sh", "/scripts/backup.sh"]
+              volumeMounts:
+                - name: backup-storage
+                  mountPath: /backup
+                - name: script-volume
+                  mountPath: /scripts
+                  readOnly: true
+              envFrom:
+                - secretRef:
+                    name: bookstack-backup-secret
+          volumes:
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: bookstack-data-pvc
+            - name: script-volume
+              configMap:
+                name: backup-script
+                defaultMode: 0777

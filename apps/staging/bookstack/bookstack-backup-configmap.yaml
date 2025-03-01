@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backup-script
+data:
+  backup.sh: |
+    #!/bin/sh
+    git config user.name "FedericoSerini"
+    git config user.email federico.serini.se@pec.it
+    git clone $REPO
+
+    cd $REPO_ROOT_FOLDER
+    mkdir books
+
+    response=$(curl --header "Authorization: Token $BS_TOKEN_ID:$BS_TOKEN_SECRET" "https://bookstack.federicoserini.com/api/books?count=500")
+
+    echo "$response" | grep -o '"id":[0-9]*' | cut -d: -f2 | while read id; do
+       echo "Book ID: $id"
+       curl -s -H "Authorization: Token $BS_TOKEN_ID:$BS_TOKEN_SECRET" "https://bookstack.federicoserini.com/api/books/$id/export/markdown" > ./books/$id.md
+    done
+
+    git add .
+    git commit -m "update: sync"
+    git push
