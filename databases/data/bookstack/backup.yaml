@@ -5,14 +5,15 @@ metadata:
 spec:
   mariaDbRef:
     name: mariadb
-  s3:
-    bucket: bookstack-mariadb-staging-backup
-    region: eu-central-1
-    accessKeyIdSecretKeyRef:
-      name: bookstack-maria-secret
-      key: access-key-id
-    secretAccessKeySecretKeyRef:
-      name: bookstack-maria-secret
-      key: secret-access-key
-    credentialsSecret: s3-credentials
+  storage:
+    s3:
+      bucket: bookstack-mariadb-staging-backup
+      region: eu-central-1
+      accessKeyIdSecretKeyRef:
+        name: bookstack-maria-secret
+        key: access-key-id
+      secretAccessKeySecretKeyRef:
+        name: bookstack-maria-secret
+        key: secret-access-key
+      credentialsSecret: s3-credentials
   schedule: "0 0 1 * *" # every first day of the month
