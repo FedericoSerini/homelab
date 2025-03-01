@@ -16,5 +16,3 @@ spec:
       key: secret-access-key
     credentialsSecret: s3-credentials
   schedule: "0 0 1 * *" # every first day of the month
-  retentionPolicy:
-    keepLast: 2
