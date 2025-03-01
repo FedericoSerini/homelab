@@ -5,9 +5,10 @@ metadata:
 data:
   backup.sh: |
     #!/bin/sh
+    git clone https://$GIT_TOKEN@github.com/FedericoSerini/$REPO_ROOT_FOLDER.git
+
     git config user.name "FedericoSerini"
     git config user.email federico.serini.se@pec.it
-    git clone https://$GIT_TOKEN@github.com/FedericoSerini/$REPO_ROOT_FOLDER.git
 
     cd $REPO_ROOT_FOLDER
     mkdir books
