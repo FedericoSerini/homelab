@@ -6,6 +6,6 @@ resources:
   - cloudflare.yaml
   - cloudflare-secret.yaml
   - bookstack-secret.yaml
-  - bookstack-backup-config.yaml
+  - bookstack-backup-configmap.yaml
   - bookstack-backup-cronjob.yaml
   - bookstack-backup-secret.yaml
