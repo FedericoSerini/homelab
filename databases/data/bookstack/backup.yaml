@@ -15,6 +15,5 @@ spec:
       secretAccessKeySecretKeyRef:
         name: bookstack-maria-secret
         key: secret-access-key
-      credentialsSecret: s3-credentials
   schedule:
     cron: "0 0 1 * *" # every first day of the month
