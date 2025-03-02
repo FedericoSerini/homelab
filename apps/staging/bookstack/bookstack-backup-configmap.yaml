@@ -7,8 +7,8 @@ data:
     #!/bin/sh
     git clone https://$GIT_TOKEN@github.com/FedericoSerini/$REPO_ROOT_FOLDER.git
 
-    git config user.name "FedericoSerini"
-    git config user.email federico.serini.se@pec.it
+    git config --global user.name "FedericoSerini"
+    git config --global user.email federico.serini.se@pec.it
 
     cd $REPO_ROOT_FOLDER
     mkdir books
