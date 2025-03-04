@@ -20,7 +20,6 @@ spec:
       owner: linkding
       secret:
         name: linkding-pg-secret
-        key: password
   enableSuperuserAccess: false
   storage:
     size: 1Gi
