@@ -33,7 +33,7 @@ spec:
           key: access-key-id
         secretAccessKey:
           name: linkding-pg-secret
-          key: access-secret-key
+          key: secret-access-key
       wal:
         compression: gzip
         encryption: AES256
