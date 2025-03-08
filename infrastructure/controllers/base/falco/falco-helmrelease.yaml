@@ -13,7 +13,7 @@ spec:
   interval: 1h0m0s
   values:
     falco:
-      rules_file:
+      customRules:
         custom-rules.yaml: |
           - rule: Block Package Managers Execution Bookstack
             desc: Detect and alert when apk, curl, or wget is executed inside bookstack container
