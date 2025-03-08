@@ -14,7 +14,7 @@ spec:
   values:
     falco:
       customRules:
-        custom-rules.yaml: |
+        custom-rules.yaml: |-
           - list: forbidden_cmd
             items: [apk, curl, wget]
           - macro: container
