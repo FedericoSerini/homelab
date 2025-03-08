@@ -17,7 +17,7 @@ spec:
         - list: forbidden_cmd
           items: [apk, curl, wget]
         - macro: container
-          condition: container_id != host
+          condition: container.id != host
         - macro: spawned_process
           condition: evt.type = execve and evt.dir = <
         - macro: shell_procs
