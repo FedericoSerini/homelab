@@ -18,7 +18,7 @@ spec:
           items: [apk, curl, wget]
         - list: kube_namespaces
           items: [bookstack]
-        - macro: checked_namespaces:
+        - macro: checked_namespaces
           condition: k8s.ns.name in (kube_namespaces)
         - macro: forbidden_procs
           condition: proc.name in (forbidden_cmd)
