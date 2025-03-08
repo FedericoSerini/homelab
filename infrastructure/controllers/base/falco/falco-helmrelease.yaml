@@ -15,9 +15,9 @@ spec:
     falco:
       customRules:
         custom-rules.yaml: |
-          - rule: Block Package Managers Execution Bookstack
-            desc: Detect and alert when apk, curl, or wget is executed inside bookstack container
-            condition: container and proc.name in (apk, curl, wget) and k8s.ns.name="bookstack"
+          - rule: Block Package Managers Execution
+            desc: Detect and alert when apk, curl, or wget is executed inside container
+            condition: container and proc.name in (apk, curl, wget)
             output: "Package manager execution detected in container (command=%proc.cmdline user=%user.name container_id=%container.id)"
             priority: CRITICAL
             tags: [security, container]
