@@ -16,15 +16,20 @@ spec:
       custom-rules.yaml: |-
         - list: forbidden_cmd
           items: [apk, curl, wget]
-        - macro: container
-          condition: container.id != host
-        - macro: spawned_process
-          condition: evt.type = execve and evt.dir = <
         - macro: shell_procs
           condition: proc.name in (forbidden_cmd)
         - rule: Block Package Managers Execution
           desc: Detect and alert when apk, curl, or wget is executed inside container
-          condition: spawned_process and container and shell_procs
+          condition: >
+            (spawned_process 
+            and container 
+            and shell_procs)
+            or (spawned_process
+            and container 
+            and shell_procs
+            and proc.tty != 0
+            and container_entrypoint
+            and not user_expected_terminal_shell_in_container_conditions)
           output: "Package manager execution detected in container (command=%proc.cmdline user=%user.name container_id=%container.id)"
           priority: CRITICAL
           tags: [security, container]
