@@ -13,11 +13,10 @@ spec:
   interval: 1h0m0s
   values:
     collectors:
+      # enables metacollector
       kubernetes:
         enabled: true
     json_output: true
-    append_output:
-      extra_output: "pod_uid=%k8smeta.pod.uid, pod_name=%k8smeta.pod.name, namespace_name=%k8smeta.ns.name"
     customRules:
       custom-rules.yaml: |-
         - list: forbidden_cmd
@@ -29,7 +28,7 @@ spec:
         - macro: forbidden_procs
           condition: proc.name in (forbidden_cmd)
         - rule: Block Package Managers Execution
-          desc: Detect and alert when apk, curl, or wget is executed inside container
+          desc: Detect and alert when apk, curl, or wget is executed inside the container
           condition: >
             (spawned_process 
             and container 
@@ -42,6 +41,6 @@ spec:
             and container_entrypoint
             and not user_expected_terminal_shell_in_container_conditions
             and checked_namespaces)
-          output: "Package manager execution detected in container (namespace=%k8s.ns.name command=%proc.cmdline user=%user.name container_id=%container.id)"
+          output: "Package manager execution detected in container (command=%proc.cmdline namespace=%k8smeta.ns.name user=%user.name pod_uid=%k8smeta.pod.uid, pod_name=%k8smeta.pod.name)"
           priority: CRITICAL
           tags: [security, container]
