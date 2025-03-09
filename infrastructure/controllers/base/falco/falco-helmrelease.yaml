@@ -15,10 +15,9 @@ spec:
     collectors:
       kubernetes:
         enabled: true
+    json_output: true
     append_output:
-      - match:
-          source: syscall
-        extra_output: "pod_uid=%k8smeta.pod.uid, pod_name=%k8smeta.pod.name, namespace_name=%k8smeta.ns.name"
+      extra_output: "pod_uid=%k8smeta.pod.uid, pod_name=%k8smeta.pod.name, namespace_name=%k8smeta.ns.name"
     customRules:
       custom-rules.yaml: |-
         - list: forbidden_cmd
