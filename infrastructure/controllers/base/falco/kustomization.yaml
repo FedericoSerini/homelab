@@ -4,5 +4,3 @@ resources:
   - falco-helmrelease.yaml
   - falco-helmrepository.yaml
   - falco-namespace.yaml
-  - falco-k8s-metacollector-namespace.yaml
-  - falco-k8s-metacollector-helmrelease.yaml
