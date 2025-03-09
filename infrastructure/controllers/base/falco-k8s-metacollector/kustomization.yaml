@@ -1,6 +1,0 @@
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-resources:
-  - falco-k8s-metacollector-helmrepository.yaml
-  - falco-k8s-metacollector-namespace.yaml
-  - falco-k8s-metacollector-helmrelease.yaml

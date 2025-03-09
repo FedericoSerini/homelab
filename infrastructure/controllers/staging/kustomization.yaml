@@ -3,7 +3,6 @@ kind: Kustomization
 resources:
   - kyverno
   - falco
-  - falco-k8s-metacollector
   - cloudnative-pg-operator
   - mariadb-operator
   - external-dns

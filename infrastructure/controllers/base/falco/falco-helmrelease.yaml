@@ -15,6 +15,10 @@ spec:
     collectors:
       kubernetes:
         enabled: true
+    append_output:
+      - match:
+          source: syscall
+        extra_output: "pod_uid=%k8smeta.pod.uid, pod_name=%k8smeta.pod.name, namespace_name=%k8smeta.ns.name"
     customRules:
       custom-rules.yaml: |-
         - list: forbidden_cmd
@@ -22,7 +26,7 @@ spec:
         - list: kube_namespaces
           items: [bookstack]
         - macro: checked_namespaces
-          condition: k8s.ns.name in (kube_namespaces)
+          condition: k8smeta.ns.name in (kube_namespaces)
         - macro: forbidden_procs
           condition: proc.name in (forbidden_cmd)
         - rule: Block Package Managers Execution
