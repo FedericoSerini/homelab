@@ -42,3 +42,19 @@ spec:
         encryption: AES256
         immediateCheckpoint: false
         jobs: 1
+  managed:
+    services:
+      disabledDefaultServices:
+        - ro
+        - r
+      additional:
+        - selectorType: rw
+          serviceTemplate:
+            metadata:
+              name: linkding-db-lb
+              labels:
+                cilium-lb-pool: postgres-pool
+              annotations:
+                external-dns.alpha.kubernetes.io/hostname: linkding-pg.federicoserini.com
+            spec:
+              type: LoadBalancer
