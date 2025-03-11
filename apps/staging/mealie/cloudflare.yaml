@@ -78,7 +78,7 @@ data:
 
     ingress:
     - hostname: mealie.federicoserini.com
-      service: http://linkding:9000
+      service: http://mealie:9000
 
     # This rule matches any traffic which didn't match a previous rule, and responds with HTTP 404.
     - service: http_status:404
