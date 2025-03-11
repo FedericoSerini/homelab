@@ -1,0 +1,60 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-mealie
+spec:
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.4
+  instances: 1
+  startDelay: 300
+  stopDelay: 300
+  primaryUpdateStrategy: unsupervised
+  postgresql:
+    parameters:
+      shared_buffers: 256MB
+      pg_stat_statements.max: "10000"
+      pg_stat_statements.track: all
+      auto_explain.log_min_duration: "10s"
+  bootstrap:
+    initdb:
+      database: mealie
+      owner: mealie
+      secret:
+        name: mealie-pg-secret
+  enableSuperuserAccess: false
+  storage:
+    size: 2Gi
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://mealie-pg-staging-backup/
+      endpointURL: https://s3.eu-central-1.amazonaws.com
+      s3Credentials:
+        accessKeyId:
+          name: mealie-pg-secret
+          key: access-key-id
+        secretAccessKey:
+          name: mealie-pg-secret
+          key: secret-access-key
+      wal:
+        compression: gzip
+        encryption: AES256
+      data:
+        compression: gzip
+        encryption: AES256
+        immediateCheckpoint: false
+        jobs: 1
+  managed:
+    services:
+      disabledDefaultServices:
+        - ro
+        - r
+      additional:
+        - selectorType: rw
+          serviceTemplate:
+            metadata:
+              name: mealie-db-lb
+              labels:
+                cilium-lb-pool: postgres-pool
+              annotations:
+                external-dns.alpha.kubernetes.io/hostname: mealie-pg.federicoserini.com
+            spec:
+              type: LoadBalancer
