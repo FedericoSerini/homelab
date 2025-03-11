@@ -21,7 +21,7 @@ spec:
           image: ghcr.io/mealie-recipes/mealie:v2.7.1
           ports:
             - containerPort: 9000
-          volumeMounts::
+          volumeMounts:
             - name: mealie-data
               mountPath: /app/data
           securityContext:
