@@ -1,0 +1,18 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Restore
+metadata:
+  name: mariadb-restore-backup
+spec:
+  mariaDbRef:
+    name: mariadb
+  targetRecoveryTime: 2025-03-15T00:00:00Z
+  s3:
+    bucket: bookstack-mariadb-staging-backup
+    endpoint: s3.eu-central-1.amazonaws.com
+    region: eu-central-1
+    accessKeyIdSecretKeyRef:
+      name: bookstack-maria-secret
+      key: access-key-id
+    secretAccessKeySecretKeyRef:
+      name: bookstack-maria-secret
+      key: secret-access-key
