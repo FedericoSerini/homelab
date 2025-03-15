@@ -6,3 +6,4 @@ resources:
   - cloudnative-pg-operator
   - mariadb-operator
   - external-dns
+  - synology-csi
