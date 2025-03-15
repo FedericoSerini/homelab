@@ -43,7 +43,7 @@ spec:
         encryption: AES256
         immediateCheckpoint: false
         jobs: 1
-  externalCluster:
+  externalClusters:
     - name: mealieBackup
       barmanObjectStore:
         destinationPath: s3://mealie-pg-staging-backup/

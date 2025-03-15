@@ -43,7 +43,7 @@ spec:
         encryption: AES256
         immediateCheckpoint: false
         jobs: 1
-  externalCluster:
+  externalClusters:
     - name: linkdingBackup
       barmanObjectStore:
         destinationPath: s3://linkding-pg-staging-backup/
