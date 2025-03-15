@@ -9,6 +9,7 @@ spec:
   port: 3306
   storage:
     size: 1Gi
+    storageClassName: synology-iscsi-storage
   resources:
     requests:
       cpu: 100m

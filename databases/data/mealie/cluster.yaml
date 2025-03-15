@@ -24,6 +24,7 @@ spec:
   enableSuperuserAccess: false
   storage:
     size: 2Gi
+    storageClassName: synology-iscsi-storage
   backup:
     barmanObjectStore:
       destinationPath: s3://mealie-pg-staging-backup/

@@ -24,6 +24,7 @@ spec:
   enableSuperuserAccess: false
   storage:
     size: 1Gi
+    storageClassName: synology-iscsi-storage
   backup:
     barmanObjectStore:
       destinationPath: s3://linkding-pg-staging-backup/
