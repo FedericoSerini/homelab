@@ -15,7 +15,8 @@ spec:
       pg_stat_statements.track: all
       auto_explain.log_min_duration: "10s"
   bootstrap:
-    initdb:
+    recovery:
+      source: linkdingBackup
       database: linkding
       owner: linkding
       secret:
@@ -42,6 +43,18 @@ spec:
         encryption: AES256
         immediateCheckpoint: false
         jobs: 1
+  externalCluster:
+    - name: linkdingBackup
+      barmanObjectStore:
+        destinationPath: s3://linkding-pg-staging-backup/
+        endpointURL: https://s3.eu-central-1.amazonaws.com
+        s3Credentials:
+          accessKeyId:
+            name: linkding-pg-secret
+            key: access-key-id
+          secretAccessKey:
+            name: linkding-pg-secret
+            key: secret-access-key
   managed:
     services:
       disabledDefaultServices:
