@@ -1,9 +1,3 @@
-# NOTE: These must be set manually to the control plane IP addresses
-# kubeEtcd:
-#  endpoints:
-#    - x.y.z.a
-#    - x.y.z.b
-#    - x.y.z.c
 kubeControllerManager:
   service:
     selector:
@@ -33,8 +27,6 @@ grafana:
     date_formats:
       default_week_start: monday
 
-  envFromSecret: grafana-env
-
   sidecar:
     datasources:
       enabled: true
@@ -47,79 +39,6 @@ grafana:
       searchNamespace: monitoring
       provider:
         allowUiUpdates: true
-
-  # Choosing to add data sources here instead of separate configmaps.
-  # Reason: Adding here will trigger a redeploy.
-  # Future improvement: utilize Kustomizeconfig to allow separate configmap files.
-  datasources:
-    datasources.yaml:
-      apiVersion: 1
-      datasources:
-        - name: Health DB
-          type: postgres
-          url: health-db.mischavandenburg.net:5432
-          user: health
-          uid: health-db
-          secureJsonData:
-            password: $HEALTH_DB_PASSWORD
-          jsonData:
-            database: health
-            sslmode: disable
-            maxOpenConns: 100
-            maxIdleConns: 100
-            maxLifetime: 14400
-            minIdleTimeoutMinutes: 1
-            connMaxLifetime: 14400
-            postgresVersion: 1500
-            timescaledb: false
-          version: 1
-          editable: true
-        - name: Home IoT DB
-          type: postgres
-          url: home-iot-db.mischavandenburg.net:5432
-          user: shelly
-          uid: home-iot-db
-          secureJsonData:
-            password: $HOME_IOT_DB_PASSWORD
-          jsonData:
-            database: shelly
-            sslmode: disable
-            maxOpenConns: 100
-            maxIdleConns: 100
-            maxLifetime: 14400
-            minIdleTimeoutMinutes: 1
-            connMaxLifetime: 14400
-            postgresVersion: 1500
-            timescaledb: false
-          version: 1
-          editable: true
-        - name: Quantified Self DB
-          type: postgres
-          url: quantified-self-db.mischavandenburg.net:5432
-          user: zktracker
-          uid: quantified-self-db
-          secureJsonData:
-            password: $QF_DB_PASSWORD
-          jsonData:
-            database: zettelkasten-tracker
-            sslmode: disable
-            maxOpenConns: 100
-            maxIdleConns: 100
-            maxLifetime: 14400
-            minIdleTimeoutMinutes: 1
-            connMaxLifetime: 14400
-            postgresVersion: 1500
-            timescaledb: false
-          version: 1
-          editable: true
-
-      deleteDatasources:
-        - name: Health DB
-          orgId: 1
-        - name: Home IoT DB
-          orgId: 1
-        - name: Quatified Self DB
-          orgId: 1
 
   persistence:
     enabled: true
