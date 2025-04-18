@@ -24,10 +24,6 @@ spec:
           volumeMounts:
             - name: mealie-data
               mountPath: /app
-              subPath: /data
-            - name: mealie-data
-              mountPath: /app
-              subPath: /nltk_data
           securityContext:
             allowPrivilegeEscalation: false
           envFrom:
