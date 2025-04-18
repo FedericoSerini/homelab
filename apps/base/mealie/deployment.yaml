@@ -23,7 +23,9 @@ spec:
             - containerPort: 9000
           volumeMounts:
             - name: mealie-data
-              mountPath: /app
+              mountPath: /app/data
+            - name: nltk-data
+              mountPath: /app/nltk_data
           securityContext:
             allowPrivilegeEscalation: false
           envFrom:
@@ -43,3 +45,6 @@ spec:
         - name: mealie-data
           persistentVolumeClaim:
             claimName: mealie-data-pvc
+        - name: nltk-data
+          emptyDir:
+            sizeLimit: 300Mi
