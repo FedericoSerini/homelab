@@ -3,3 +3,4 @@ kind: Kustomization
 namespace: phos
 resources:
   - ../../base/phos/
+  - ghcr-login-secret.yaml
