@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phos
+  template:
+    metadata:
+      labels:
+        app: phos
+    spec:
+      containers:
+        - name: phos-metadata-service
+          image: ghcr.io/federicoserini/phos-metadata-service:0.1
+          ports:
+            - containerPort: 9999
+          volumeMounts:
+            - name: phos-data
+              mountPath: /app/data
+          securityContext:
+            allowPrivilegeEscalation: false
+          readinessProbe:
+            tcpSocket:
+              port: 9999
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          livenessProbe:
+            tcpSocket:
+              port: 9999
+            initialDelaySeconds: 30
+            periodSeconds: 15
+      imagePullSecrets:
+        - name: ghcr-login-secret
+      volumes:
+        - name: phos-data
+          emptyDir:
+            sizeLimit: 300Mi
