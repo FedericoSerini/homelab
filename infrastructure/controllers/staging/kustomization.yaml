@@ -7,3 +7,4 @@ resources:
   - mariadb-operator
   - external-dns
   - synology-csi
+  - mongodb-operator
