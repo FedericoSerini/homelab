@@ -1,0 +1,6 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - mongodb-operator-helmrelease.yaml
+  - mongodb-operator-helmrepository.yaml
+  - mongodb-operator-namespace.yaml

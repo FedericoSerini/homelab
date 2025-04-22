@@ -1,0 +1,7 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: mongodb-operator
+spec:
+  interval: 5m
+  url: https://mongodb.github.io/helm-charts
