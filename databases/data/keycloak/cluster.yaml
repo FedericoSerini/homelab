@@ -15,8 +15,7 @@ spec:
       pg_stat_statements.track: all
       auto_explain.log_min_duration: "10s"
   bootstrap:
-    recovery:
-      source: keycloakBackup
+    init:
       database: keycloak
       owner: keycloak
       secret:
