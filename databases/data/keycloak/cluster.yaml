@@ -15,7 +15,7 @@ spec:
       pg_stat_statements.track: all
       auto_explain.log_min_duration: "10s"
   bootstrap:
-    init:
+    initdb:
       database: keycloak
       owner: keycloak
       secret:
