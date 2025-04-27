@@ -4,3 +4,4 @@ resources:
   - bookstack
   - linkding
   - mealie
+  - keycloak
