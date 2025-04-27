@@ -1,0 +1,77 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-keycloak
+spec:
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.4
+  instances: 1
+  startDelay: 300
+  stopDelay: 300
+  primaryUpdateStrategy: unsupervised
+  postgresql:
+    parameters:
+      shared_buffers: 256MB
+      pg_stat_statements.max: "10000"
+      pg_stat_statements.track: all
+      auto_explain.log_min_duration: "10s"
+  bootstrap:
+    recovery:
+      source: keycloakBackup
+      database: keycloak
+      owner: keycloak
+      secret:
+        name: keycloak-pg-secret
+  enableSuperuserAccess: false
+  storage:
+    size: 1Gi
+    storageClass: synology-iscsi-storage
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://keycloak-pg-staging-backup/
+      endpointURL: https://s3.eu-central-1.amazonaws.com
+      s3Credentials:
+        accessKeyId:
+          name: keycloak-pg-secret
+          key: access-key-id
+        secretAccessKey:
+          name: keycloak-pg-secret
+          key: secret-access-key
+      wal:
+        compression: gzip
+        encryption: AES256
+      data:
+        compression: gzip
+        encryption: AES256
+        immediateCheckpoint: false
+        jobs: 1
+  externalClusters:
+    - name: keycloakBackup
+      barmanObjectStore:
+        destinationPath: s3://keycloak-pg-staging-backup/
+        endpointURL: https://s3.eu-central-1.amazonaws.com
+        s3Credentials:
+          accessKeyId:
+            name: keycloak-pg-secret
+            key: access-key-id
+          secretAccessKey:
+            name: keycloak-pg-secret
+            key: secret-access-key
+  managed:
+    services:
+      disabledDefaultServices:
+        - ro
+        - r
+      additional:
+        - selectorType: rw
+          serviceTemplate:
+            metadata:
+              name: keycloak-db-lb
+              labels:
+                cilium-lb-pool: postgres-pool
+              annotations:
+                external-dns.alpha.kubernetes.io/hostname: keycloak-pg.federicoserini.com
+            spec:
+              type: LoadBalancer
+              ports:
+                - name: postgres
+                  port: 5434
