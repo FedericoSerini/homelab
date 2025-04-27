@@ -76,3 +76,4 @@ spec:
                 - name: linkding-pg-port
                   port: 15432
                   targetPort: 5432
+                  nodePort: 31532
