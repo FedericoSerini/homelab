@@ -14,10 +14,6 @@ spec:
       pg_stat_statements.max: "10000"
       pg_stat_statements.track: all
       auto_explain.log_min_duration: "10s"
-    container:
-      envFrom:
-        - secretRef:
-            name: linkding-pg-secret
   bootstrap:
     recovery:
       source: linkdingBackup
@@ -76,3 +72,6 @@ spec:
                 external-dns.alpha.kubernetes.io/hostname: linkding-pg.federicoserini.com
             spec:
               type: LoadBalancer
+              ports:
+                - name: postgres
+                  port: 5433
