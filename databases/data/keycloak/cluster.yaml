@@ -43,18 +43,6 @@ spec:
         encryption: AES256
         immediateCheckpoint: false
         jobs: 1
-  externalClusters:
-    - name: keycloakBackup
-      barmanObjectStore:
-        destinationPath: s3://keycloak-pg-staging-backup/
-        endpointURL: https://s3.eu-central-1.amazonaws.com
-        s3Credentials:
-          accessKeyId:
-            name: keycloak-pg-secret
-            key: access-key-id
-          secretAccessKey:
-            name: keycloak-pg-secret
-            key: secret-access-key
   managed:
     services:
       disabledDefaultServices:
