@@ -15,8 +15,7 @@ spec:
       pg_stat_statements.track: all
       auto_explain.log_min_duration: "10s"
   bootstrap:
-    recovery:
-      source: linkdingBackup
+    initdb:
       database: linkding
       owner: linkding
       secret:
@@ -27,6 +26,7 @@ spec:
     storageClass: synology-iscsi-storage
   backup:
     barmanObjectStore:
+      serverName: recovery1
       destinationPath: s3://linkding-pg-staging-backup/
       endpointURL: https://s3.eu-central-1.amazonaws.com
       s3Credentials:
@@ -47,6 +47,7 @@ spec:
   externalClusters:
     - name: linkdingBackup
       barmanObjectStore:
+        serverName: recovery1
         destinationPath: s3://linkding-pg-staging-backup/
         endpointURL: https://s3.eu-central-1.amazonaws.com
         s3Credentials:
@@ -61,17 +62,3 @@ spec:
       disabledDefaultServices:
         - ro
         - r
-      additional:
-        - selectorType: rw
-          serviceTemplate:
-            metadata:
-              name: linkding-db-lb
-              labels:
-                cilium-lb-pool: postgres-pool
-              annotations:
-                external-dns.alpha.kubernetes.io/hostname: linkding-pg.federicoserini.com
-            spec:
-              type: LoadBalancer
-              ports:
-                - name: postgres
-                  port: 5433

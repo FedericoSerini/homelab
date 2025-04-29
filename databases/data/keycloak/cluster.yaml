@@ -48,17 +48,3 @@ spec:
       disabledDefaultServices:
         - ro
         - r
-      additional:
-        - selectorType: rw
-          serviceTemplate:
-            metadata:
-              name: keycloak-db-lb
-              labels:
-                cilium-lb-pool: postgres-pool
-              annotations:
-                external-dns.alpha.kubernetes.io/hostname: keycloak-pg.federicoserini.com
-            spec:
-              type: LoadBalancer
-              ports:
-                - name: postgres
-                  port: 5434

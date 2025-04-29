@@ -15,8 +15,7 @@ spec:
       pg_stat_statements.track: all
       auto_explain.log_min_duration: "10s"
   bootstrap:
-    recovery:
-      source: mealieBackup
+    initdb:
       database: mealie
       owner: mealie
       secret:
@@ -25,8 +24,10 @@ spec:
   storage:
     size: 2Gi
     storageClass: synology-iscsi-storage
+
   backup:
     barmanObjectStore:
+      serverName: recovery1
       destinationPath: s3://mealie-pg-staging-backup/
       endpointURL: https://s3.eu-central-1.amazonaws.com
       s3Credentials:
@@ -44,9 +45,11 @@ spec:
         encryption: AES256
         immediateCheckpoint: false
         jobs: 1
+
   externalClusters:
     - name: mealieBackup
       barmanObjectStore:
+        serverName: recovery1
         destinationPath: s3://mealie-pg-staging-backup/
         endpointURL: https://s3.eu-central-1.amazonaws.com
         s3Credentials:
@@ -61,14 +64,3 @@ spec:
       disabledDefaultServices:
         - ro
         - r
-      additional:
-        - selectorType: rw
-          serviceTemplate:
-            metadata:
-              name: mealie-db-lb
-              labels:
-                cilium-lb-pool: postgres-pool
-              annotations:
-                external-dns.alpha.kubernetes.io/hostname: mealie-pg.federicoserini.com
-            spec:
-              type: LoadBalancer
