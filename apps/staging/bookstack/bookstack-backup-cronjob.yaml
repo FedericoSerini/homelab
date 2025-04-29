@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: backup-job
 spec:
-  schedule: "0 */1 * * *" # every 1 hours
+  schedule: "*/15 * * * *" # every 15 minutes
   successfulJobsHistoryLimit: 2
   failedJobsHistoryLimit: 2
   jobTemplate:
