@@ -4,7 +4,7 @@ auth:
   passwordSecretKey: KEYCLOAK_ADMIN_PASSWORD
 
 containerPorts:
-  http: 9900
+  https: 9900
 
 service:
   http:
