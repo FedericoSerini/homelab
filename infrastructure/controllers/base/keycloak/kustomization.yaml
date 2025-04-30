@@ -4,3 +4,12 @@ resources:
   - keycloak-helmrelease.yaml
   - keycloak-helmrepository.yaml
   - keycloak-namespace.yaml
+  - secret.yaml
+
+configMapGenerator:
+  - name: keycloak-values
+    files:
+      - values.yaml=values.yaml
+
+configurations:
+  - kustomizeconfig.yaml

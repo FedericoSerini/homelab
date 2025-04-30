@@ -11,3 +11,6 @@ spec:
         name: keycloak
       version: "24.3.0"
   interval: 1h0m0s
+  valuesFrom:
+    - kind: ConfigMap
+      name: keycloak-values

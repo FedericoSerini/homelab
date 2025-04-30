@@ -1,0 +1,17 @@
+auth:
+  createAdminUser: false
+
+extraEnvFrom:
+  - secretRef:
+      name: keycloak-secret
+
+postgresql:
+  enabled: false
+
+externalDatabase:
+  existingSecret: keycloak-secret
+  existingSecretHostKey: keycloak-db-host
+  existingSecretUserKey: keycloak-db-user
+  existingSecretPasswordKey: keycloak-db-password
+  existingSecretDatabaseKey: keycloak-db-name
+  existingSecretPortKey: keycloak-db-port
