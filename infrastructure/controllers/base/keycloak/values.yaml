@@ -6,6 +6,10 @@ auth:
 containerPorts:
   http: 9900
 
+service:
+  ports:
+    http: 9900
+
 # These values are like this by default, preferring to declare them in an explicit way.
 keycloakConfigCli:
   containerSecurityContext:
