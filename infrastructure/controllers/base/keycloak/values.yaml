@@ -3,10 +3,6 @@ auth:
   adminUser: federico
   passwordSecretKey: KEYCLOAK_ADMIN_PASSWORD
 
-extraEnvFrom:
-  - secretRef:
-      name: keycloak-secret
-
 postgresql:
   enabled: false
 
