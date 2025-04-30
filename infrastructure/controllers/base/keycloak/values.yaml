@@ -1,5 +1,7 @@
 auth:
-  createAdminUser: false
+  existingSecret: keycloak-secret
+  adminUser: federico
+  passwordSecretKey: KEYCLOAK_ADMIN_PASSWORD
 
 extraEnvFrom:
   - secretRef:
