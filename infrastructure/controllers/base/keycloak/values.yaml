@@ -3,6 +3,16 @@ auth:
   adminUser: federico
   passwordSecretKey: KEYCLOAK_ADMIN_PASSWORD
 
+containerPorts:
+  http: 9900
+
+# These values are like this by default, preferring to declare them in an explicit way.
+keycloakConfigCli:
+  containerSecurityContext:
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+
 postgresql:
   enabled: false
 
