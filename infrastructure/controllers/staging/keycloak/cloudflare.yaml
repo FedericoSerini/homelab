@@ -78,7 +78,7 @@ data:
 
     ingress:
     - hostname: gatekeeper.federicoserini.com
-      service: http://keycloak:9900
+      service: https://keycloak:9900
 
     # This rule matches any traffic which didn't match a previous rule, and responds with HTTP 404.
     - service: http_status:404
