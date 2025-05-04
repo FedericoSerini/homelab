@@ -24,41 +24,6 @@ spec:
   storage:
     size: 2Gi
     storageClass: synology-iscsi-storage
-
-  backup:
-    barmanObjectStore:
-      serverName: recovery1
-      destinationPath: s3://mealie-pg-staging-backup/
-      endpointURL: https://s3.eu-central-1.amazonaws.com
-      s3Credentials:
-        accessKeyId:
-          name: mealie-pg-secret
-          key: access-key-id
-        secretAccessKey:
-          name: mealie-pg-secret
-          key: secret-access-key
-      wal:
-        compression: gzip
-        encryption: AES256
-      data:
-        compression: gzip
-        encryption: AES256
-        immediateCheckpoint: false
-        jobs: 1
-
-  externalClusters:
-    - name: mealieBackup
-      barmanObjectStore:
-        serverName: recovery1
-        destinationPath: s3://mealie-pg-staging-backup/
-        endpointURL: https://s3.eu-central-1.amazonaws.com
-        s3Credentials:
-          accessKeyId:
-            name: mealie-pg-secret
-            key: access-key-id
-          secretAccessKey:
-            name: mealie-pg-secret
-            key: secret-access-key
   managed:
     services:
       disabledDefaultServices:

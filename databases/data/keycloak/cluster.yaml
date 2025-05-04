@@ -24,26 +24,7 @@ spec:
   storage:
     size: 1Gi
     storageClass: synology-iscsi-storage
-  backup:
-    barmanObjectStore:
-      destinationPath: s3://keycloak-pg-staging-backup/
-      endpointURL: https://s3.eu-central-1.amazonaws.com
-      s3Credentials:
-        accessKeyId:
-          name: keycloak-pg-secret
-          key: access-key-id
-        secretAccessKey:
-          name: keycloak-pg-secret
-          key: secret-access-key
-      wal:
-        compression: gzip
-        encryption: AES256
-      data:
-        compression: gzip
-        encryption: AES256
-        immediateCheckpoint: false
-        jobs: 1
-  managed:
+    managed:
     services:
       disabledDefaultServices:
         - ro

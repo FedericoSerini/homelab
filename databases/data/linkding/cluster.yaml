@@ -24,39 +24,6 @@ spec:
   storage:
     size: 1Gi
     storageClass: synology-iscsi-storage
-  backup:
-    barmanObjectStore:
-      serverName: recovery1
-      destinationPath: s3://linkding-pg-staging-backup/
-      endpointURL: https://s3.eu-central-1.amazonaws.com
-      s3Credentials:
-        accessKeyId:
-          name: linkding-pg-secret
-          key: access-key-id
-        secretAccessKey:
-          name: linkding-pg-secret
-          key: secret-access-key
-      wal:
-        compression: gzip
-        encryption: AES256
-      data:
-        compression: gzip
-        encryption: AES256
-        immediateCheckpoint: false
-        jobs: 1
-  externalClusters:
-    - name: linkdingBackup
-      barmanObjectStore:
-        serverName: recovery1
-        destinationPath: s3://linkding-pg-staging-backup/
-        endpointURL: https://s3.eu-central-1.amazonaws.com
-        s3Credentials:
-          accessKeyId:
-            name: linkding-pg-secret
-            key: access-key-id
-          secretAccessKey:
-            name: linkding-pg-secret
-            key: secret-access-key
   managed:
     services:
       disabledDefaultServices:
