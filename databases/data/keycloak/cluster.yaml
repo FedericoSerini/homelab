@@ -25,7 +25,7 @@ spec:
     size: 1Gi
     storageClass: synology-iscsi-storage
     managed:
-    services:
-      disabledDefaultServices:
-        - ro
-        - r
+  services:
+    disabledDefaultServices:
+      - ro
+      - r
