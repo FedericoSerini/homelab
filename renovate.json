@@ -3,7 +3,7 @@
   "extends": [
     "config:recommended"
   ],
-  "ignoreDeps": ["phos-metadata-service"],
+  "ignoreDeps": ["ghcr.io/federicoserini/phos-metadata-service"],
   "kubernetes": {
     "fileMatch": [
       "\\.yaml$"
