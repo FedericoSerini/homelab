@@ -3,6 +3,7 @@
   "extends": [
     "config:recommended"
   ],
+  "ignoreDeps": ["phos-metadata-service"],
   "kubernetes": {
     "fileMatch": [
       "\\.yaml$"
