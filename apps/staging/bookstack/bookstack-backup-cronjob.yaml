@@ -13,7 +13,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: backup-container
-              image: bitnami/git
+              image: bitnamisecure/git
               command: ["/bin/sh", "/scripts/backup.sh"]
               volumeMounts:
                 - name: backup-storage
