@@ -19,7 +19,7 @@ spec:
       #  fsGroup: 1000
       containers:
         - name: bookstack
-          image: lscr.io/linuxserver/bookstack:25.12.20251224
+          image: lscr.io/linuxserver/bookstack:26.03.20260315
           ports:
             - containerPort: 80
           volumeMounts:
