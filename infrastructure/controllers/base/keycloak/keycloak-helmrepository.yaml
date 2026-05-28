@@ -4,5 +4,4 @@ metadata:
   name: keycloak
 spec:
   interval: 5m
-  url: oci://registry-1.docker.io/bitnamicharts
-  type: "oci"
+  url: https://codecentric.github.io/helm-charts
