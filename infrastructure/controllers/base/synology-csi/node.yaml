@@ -113,6 +113,8 @@ spec:
               mountPath: /host
             - name: device-dir
               mountPath: /dev
+            - name: iscsiadm
+              mountPath: /sbin/iscsiadm
       volumes:
         - name: kubelet-dir
           hostPath:
@@ -137,3 +139,7 @@ spec:
           hostPath:
             path: /dev
             type: Directory
+        - name: iscsiadm
+          hostPath:
+            path: /usr/local/sbin/iscsiadm
+            type: File
