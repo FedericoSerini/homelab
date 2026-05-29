@@ -58,6 +58,22 @@ spec:
     spec:
       serviceAccount: csi-node-sa
       hostNetwork: true
+      hostPID: true
+      initContainers:
+        - name: iscsi-wrapper
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              cat > /wrapper/iscsiadm <<'EOF'
+              #!/bin/sh
+              nsenter --mount=/proc/1/ns/mnt -- /usr/local/sbin/iscsiadm "$@"
+              EOF
+              chmod +x /wrapper/iscsiadm
+          volumeMounts:
+            - name: iscsi-wrapper
+              mountPath: /wrapper
       containers:
         - name: csi-driver-registrar
           securityContext:
@@ -113,8 +129,9 @@ spec:
               mountPath: /host
             - name: device-dir
               mountPath: /dev
-            - name: iscsiadm
+            - name: iscsi-wrapper
               mountPath: /sbin/iscsiadm
+              subPath: iscsiadm
       volumes:
         - name: kubelet-dir
           hostPath:
@@ -139,7 +156,5 @@ spec:
           hostPath:
             path: /dev
             type: Directory
-        - name: iscsiadm
-          hostPath:
-            path: /usr/local/sbin/iscsiadm
-            type: File
+        - name: iscsi-wrapper
+          emptyDir: {}

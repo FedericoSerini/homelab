@@ -9,6 +9,6 @@ parameters:
   dsm: "192.168.1.52"
   location: "/volume1"
   protocol: iscsi
-  fsType: "btrfs"
+  fsType: "ext4"
 reclaimPolicy: Retain
 allowVolumeExpansion: true
