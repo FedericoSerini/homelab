@@ -3,9 +3,11 @@ kind: CronJob
 metadata:
   name: backup-job
 spec:
-  schedule: "*/15 * * * *" # every 15 minutes
+  schedule: "0 2 * * *"
+  concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 2
   failedJobsHistoryLimit: 2
+  suspend: true
   jobTemplate:
     spec:
       template:
@@ -13,7 +15,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: backup-container
-              image: bitnamisecure/git
+              image: alpine/git
               command: ["/bin/sh", "/scripts/backup.sh"]
               volumeMounts:
                 - name: backup-storage

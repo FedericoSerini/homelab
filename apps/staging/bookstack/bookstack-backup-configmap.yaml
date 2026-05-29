@@ -5,6 +5,7 @@ metadata:
 data:
   backup.sh: |
     #!/bin/sh
+    apk add --no-cache curl
     git clone https://$GIT_TOKEN@github.com/FedericoSerini/$REPO_ROOT_FOLDER.git
 
     git config --global user.name "FedericoSerini"
