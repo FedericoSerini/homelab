@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mobile-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mobile-db
+  template:
+    metadata:
+      labels:
+        app: mobile-db
+    spec:
+      containers:
+        - name: mobile-db
+          image: ghcr.io/federicoserini/mobile-db:latest
+          ports:
+            - containerPort: 8443
+          volumeMounts:
+            - name: mobile-db-data
+              mountPath: /data
+          securityContext:
+            allowPrivilegeEscalation: false
+          envFrom:
+            - secretRef:
+                name: mobile-db-secret
+          readinessProbe:
+            tcpSocket:
+              port: 8443
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          livenessProbe:
+            tcpSocket:
+              port: 8443
+            initialDelaySeconds: 30
+            periodSeconds: 15
+      imagePullSecrets:
+        - name: ghcr-login-secret
+      volumes:
+        - name: mobile-db-data
+          persistentVolumeClaim:
+            claimName: mobile-db-data-pvc
