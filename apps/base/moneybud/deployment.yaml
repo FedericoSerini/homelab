@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moneybud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: moneybud
+  template:
+    metadata:
+      labels:
+        app: moneybud
+    spec:
+      containers:
+        - name: moneybud
+          image: ghcr.io/federicoserini/moneybud:latest
+          ports:
+            - containerPort: 3001
+          volumeMounts:
+            - name: moneybud-data
+              mountPath: /data
+          securityContext:
+            allowPrivilegeEscalation: false
+          envFrom:
+            - secretRef:
+                name: moneybud-secret
+          readinessProbe:
+            tcpSocket:
+              port: 3001
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          livenessProbe:
+            tcpSocket:
+              port: 3001
+            initialDelaySeconds: 30
+            periodSeconds: 15
+      imagePullSecrets:
+        - name: ghcr-login-secret
+      volumes:
+        - name: moneybud-data
+          persistentVolumeClaim:
+            claimName: moneybud-data-pvc

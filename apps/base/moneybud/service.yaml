@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: moneybud
+spec:
+  ports:
+    - port: 3001
+  selector:
+    app: moneybud
+  type: ClusterIP

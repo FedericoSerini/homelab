@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: moneybud-data-pvc
+  namespace: moneybud
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: synology-iscsi-storage
+  resources:
+    requests:
+      storage: 1Gi
