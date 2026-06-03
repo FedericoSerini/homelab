@@ -63,3 +63,4 @@ extraVolumes: |
 extraVolumeMounts: |
   - name: theme
     mountPath: /opt/keycloak/themes/homelab-theme
+    subPath: homelab-theme
