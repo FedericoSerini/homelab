@@ -46,3 +46,20 @@ proxy:
 
 http:
   relativePath: "/"
+
+extraInitContainers: |
+  - name: theme-loader
+    image: ghcr.io/federicoserini/homelab-keycloak-theme:latest
+    imagePullPolicy: Always
+    command: ["cp", "-r", "/theme/homelab-theme", "/themes/"]
+    volumeMounts:
+      - name: theme
+        mountPath: /themes
+
+extraVolumes: |
+  - name: theme
+    emptyDir: {}
+
+extraVolumeMounts: |
+  - name: theme
+    mountPath: /opt/keycloak/themes/homelab-theme
