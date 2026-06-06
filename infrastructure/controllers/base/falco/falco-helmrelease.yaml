@@ -15,10 +15,15 @@ spec:
     driver:
       kind: modern_ebpf
     collectors:
-      # enables metacollector
       kubernetes:
         enabled: true
-    json_output: true
+    falco:
+      json_output: true
+      json_include_output_property: true
+      http_output:
+        enabled: true
+        url: "http://falco-talon.falco.svc.cluster.local:2803"
+        user_agent: "falcosecurity/falco"
     customRules:
       custom-rules.yaml: |-
         - list: forbidden_cmd
@@ -32,12 +37,12 @@ spec:
         - rule: Block Package Managers Execution
           desc: Detect and alert when apk, curl, or wget is executed inside the container
           condition: >
-            (spawned_process 
-            and container 
+            (spawned_process
+            and container
             and forbidden_procs
             and checked_namespaces)
             or (spawned_process
-            and container 
+            and container
             and shell_procs
             and proc.tty != 0
             and container_entrypoint
