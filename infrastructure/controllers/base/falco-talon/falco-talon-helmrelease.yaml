@@ -18,6 +18,12 @@ spec:
       create: true
     serviceMonitor:
       enabled: true
+    grafana:
+      dashboards:
+        enabled: true
+        configMaps:
+          talon:
+            namespace: monitoring
     config:
       rulesOverride: |
         - rule: Kill package manager in bookstack

@@ -20,7 +20,8 @@ APPS:
 INFRA CONTROLLERS (HelmReleases in ns matching name):
   ✅ cloudnative-pg-operator@0.23.1   ✅ external-dns@1.15.0
   ✅ mariadb-operator@0.28.1          ✅ mongodb-operator@0.13.0
-  ✅ falco@4.20.1                     ✅ keycloakx@7.2.0
+  ✅ falco@9.0.0                      ✅ keycloakx@7.2.0
+  ✅ falco-talon@0.4.0
   ✅ kube-prometheus-stack@68.5.0 
 
 DATABASES (all in same ns as app):
@@ -60,6 +61,13 @@ WORKFLOWS:
       --from-file=credentials.json=~/.cloudflared/<id>.json --dry-run=client -o yaml > secret.yaml
     (then same sops encrypt + move)
 
+TALOS NODE CONFIG:
+  talosconfig: ~/talos-config/talosconfig
+  schematic: e2e3b54334c85fdef4d78e88f880d185e0ce0ba0c9b5861bb5daa1cd6574db9b
+  extensions: iscsi-tools, tailscale
+  sysctls (non-default, required for Falco): kernel.perf_event_paranoid=1 (default Talos=3, blocks eBPF tracepoint attach)
+  new node: apply same schematic + same sysctls patch via talosctl patch machineconfig --patch-file
+
 KNOWN TRAPS:
   keycloakx: use args:["start"] NOT command:[] / KC_HOSTNAME required in production mode
   ConfigMap patch → pod won't restart → must delete pod manually
@@ -69,3 +77,6 @@ KNOWN TRAPS:
   Synology CSI on Talos: iscsiadm lives at /usr/local/sbin (musl libs, not in CSI container) → node DaemonSet uses initContainer+nsenter wrapper; btrfs kernel module absent from Talos 6.18.33-talos → use ext4
   StatefulSet RollingUpdate stuck on CrashLoop → delete pod manually to force new revision
   Dead node pods: stuck Terminating forever → kubectl delete pod --force --grace-period=0 + kubectl delete node
+  Falco on Talos: requires kernel.perf_event_paranoid=1 (talosctl patch) + driver.kind=modern_ebpf + privileged namespace; falco ns needs pod-security labels enforce/warn/audit=privileged
+  Falco chart 9.0.0: Falco daemon config (json_output, http_output, etc.) must be nested under the `falco:` key in HelmRelease values — top-level placement is silently ignored
+  Falco Talon: receives events via Falco http_output (port 2803); needs `json_include_output_property: true` in Falco config so k8smeta.pod.uid/pod.name are present in event payload
