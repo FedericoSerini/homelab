@@ -9,10 +9,6 @@ GITOPS: FluxCD / branch=main ONLY / SOPS+Age (secret:sops-age)
 STORAGE: synology-iscsi-storage (default) / NAS:192.168.1.52 / iSCSI/ext4/Retain
 
 APPS:
-  bookstack  ns:bookstack  img:linuxserver/bookstack:26.03  port:80   db:MariaDB  host:bookstack.federicoserini.com
-  linkding   ns:linkding   img:sissbruecker/linkding:1.45.0 port:9090 db:CNPG     host:linkding.federicoserini.com
-  mealie     ns:mealie     img:ghcr.io/mealie-recipes/mealie:v3.19.1 port:9000 db:CNPG host:mealie.federicoserini.com
-  phos       ns:phos       img:ghcr.io (private, secret:ghcr-login-secret)
   mobile-db  ns:mobile-db  img:ghcr.io/federicoserini/mobile-db:latest port:8443 db:SQLite/crsqlite(PVC) host:mobile-db.federicoserini.com secret:mobile-db-secret
   keycloak   ns:keycloak   chart:keycloakx@7.2.0(codecentric) port:80 db:CNPG   host:gatekeeper.federicoserini.com
   moneybud   ns:moneybud   img:ghcr.io/federicoserini/moneybud:latest port:3001 db:none(PVC-stub) host:moneybud.federicoserini.com secret:moneybud-secret(MOBILE_DB_URL) VITE_KEYCLOAK_URL baked at build
@@ -26,8 +22,7 @@ INFRA CONTROLLERS (HelmReleases in ns matching name):
 
 DATABASES (all in same ns as app):
   CNPG PostgreSQL 17.4 (1 instance, synology-iscsi-storage):
-    pg-keycloak (ns:keycloak-pg)  pg-linkding (ns:linkding-pg)  pg-mealie (ns:mealie-pg)
-  MariaDB (mariadb-operator): bookstack / port:3306 / external-dns:mariadb.federicoserini.com
+    pg-keycloak (ns:keycloak-pg)
 
 INGRESS: Cloudflare Tunnels / one cloudflared Deployment per namespace
   secret:tunnel-credentials / creds:/etc/cloudflared/creds/credentials.json
