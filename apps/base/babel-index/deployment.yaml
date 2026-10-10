@@ -35,6 +35,12 @@ spec:
               value: "4"
             - name: BABEL_ENABLE_RERANKER
               value: "false"
+            - name: BABEL_OIDC_ISSUER
+              value: https://gatekeeper.federicoserini.com/realms/homelab
+            - name: BABEL_OIDC_JWKS_URL
+              value: http://keycloak-keycloakx-http.keycloak.svc.cluster.local/realms/homelab/protocol/openid-connect/certs
+            - name: BABEL_OIDC_CLIENT_ID
+              value: babel-index
           envFrom:
             - secretRef:
                 name: babel-index-secret
