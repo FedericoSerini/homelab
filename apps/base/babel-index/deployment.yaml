@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: babel-index
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: babel-index
+  template:
+    metadata:
+      labels:
+        app: babel-index
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: babel-index
+          image: ghcr.io/federicoserini/babel-index:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: BABEL_QDRANT_URL
+              value: http://qdrant:6333
+            - name: BABEL_MODEL_DIR
+              value: /models
+            - name: BABEL_THREADS
+              value: "4"
+            - name: BABEL_ENABLE_RERANKER
+              value: "false"
+          envFrom:
+            - secretRef:
+                name: babel-index-secret
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: "1"
+              memory: 2Gi
+            limits:
+              cpu: "4"
+              memory: 4Gi
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 90
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 30
+            failureThreshold: 4
+          volumeMounts:
+            - name: models
+              mountPath: /models
+      imagePullSecrets:
+        - name: ghcr-login-secret
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: babel-models-pvc

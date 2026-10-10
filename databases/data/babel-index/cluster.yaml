@@ -1,0 +1,30 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-babel
+spec:
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.4
+  instances: 1
+  startDelay: 300
+  stopDelay: 300
+  primaryUpdateStrategy: unsupervised
+  postgresql:
+    parameters:
+      shared_buffers: 256MB
+      pg_stat_statements.max: "10000"
+      pg_stat_statements.track: all
+  bootstrap:
+    initdb:
+      database: babel
+      owner: babel
+      secret:
+        name: babel-pg-secret
+  enableSuperuserAccess: false
+  storage:
+    size: 5Gi
+    storageClass: synology-iscsi-storage
+  managed:
+    services:
+      disabledDefaultServices:
+        - ro
+        - r

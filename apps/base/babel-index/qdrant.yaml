@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: qdrant
+spec:
+  serviceName: qdrant
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qdrant
+  template:
+    metadata:
+      labels:
+        app: qdrant
+    spec:
+      containers:
+        - name: qdrant
+          image: qdrant/qdrant:v1.19.2
+          ports:
+            - containerPort: 6333
+              name: http
+          env:
+            - name: QDRANT__SERVICE__API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: babel-index-secret
+                  key: BABEL_QDRANT_API_KEY
+          securityContext:
+            allowPrivilegeEscalation: false
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              memory: 2Gi
+          readinessProbe:
+            tcpSocket:
+              port: 6333
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 6333
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          volumeMounts:
+            - name: qdrant-storage
+              mountPath: /qdrant/storage
+  volumeClaimTemplates:
+    - metadata:
+        name: qdrant-storage
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: synology-iscsi-storage
+        resources:
+          requests:
+            storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qdrant
+spec:
+  ports:
+    - port: 6333
+      name: http
+  selector:
+    app: qdrant
+  type: ClusterIP
