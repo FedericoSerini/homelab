@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: babel-admin
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: babel-admin
+  template:
+    metadata:
+      labels:
+        app: babel-admin
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: babel-admin
+          image: ghcr.io/federicoserini/babel-admin:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: BABEL_INDEX_URL
+              value: http://babel-index.babel-index.svc.cluster.local:8080
+            - name: BABEL_ARCHIVE_URL
+              value: https://babel-archive.federicoserini.com
+            - name: BABEL_PUBLIC_URL
+              value: https://babel-admin.federicoserini.com
+            - name: BABEL_OIDC_ISSUER
+              value: https://gatekeeper.federicoserini.com/realms/homelab
+            - name: BABEL_OIDC_JWKS_URL
+              value: http://keycloak-keycloakx-http.keycloak.svc.cluster.local/realms/homelab/protocol/openid-connect/certs
+            - name: BABEL_OIDC_TOKEN_URL
+              value: http://keycloak-keycloakx-http.keycloak.svc.cluster.local/realms/homelab/protocol/openid-connect/token
+            - name: BABEL_OIDC_CLIENT_ID
+              value: babel-admin
+          envFrom:
+            - secretRef:
+                name: babel-admin-secret
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 30
+      imagePullSecrets:
+        - name: ghcr-login-secret
