@@ -12,6 +12,8 @@ APPS:
   mobile-db  ns:mobile-db  img:ghcr.io/federicoserini/mobile-db:latest port:8443 db:SQLite/crsqlite(PVC) host:mobile-db.federicoserini.com secret:mobile-db-secret
   keycloak   ns:keycloak   chart:keycloakx@7.2.0(codecentric) port:80 db:CNPG   host:gatekeeper.federicoserini.com
   moneybud   ns:moneybud   img:ghcr.io/federicoserini/moneybud:latest port:3001 db:none(PVC-stub) host:moneybud.federicoserini.com secret:moneybud-secret(MOBILE_DB_URL) VITE_KEYCLOAK_URL baked at build
+  babel-index   ns:babel-index  img:ghcr.io/federicoserini/babel-index:latest port:8080 db:CNPG(pg-babel@babel-index-pg)+Qdrant host:babel-index.federicoserini.com auth:API key + Keycloak JWT (client babel-index)
+  babel-archive ns:babel-archive img:ghcr.io/federicoserini/babel-archive:latest port:8080 storage:NFS PV 192.168.1.52:/volume1/babel-archive + SQLite iSCSI host:babel-archive.federicoserini.com auth:Keycloak OIDC (client babel-archive, role user)
 
 INFRA CONTROLLERS (HelmReleases in ns matching name):
   ✅ cloudnative-pg-operator@0.23.1   ✅ external-dns@1.15.0
