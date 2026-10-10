@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: babel-archive
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: babel-archive
+  template:
+    metadata:
+      labels:
+        app: babel-archive
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: babel-archive
+          image: ghcr.io/federicoserini/babel-archive:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: BABEL_ARCHIVE_ROOT
+              value: /archive
+            - name: BABEL_ARCHIVE_DB
+              value: /data/catalog.sqlite
+            - name: BABEL_API_URL
+              value: http://babel-index.babel-index.svc.cluster.local:8080
+            - name: BABEL_PUBLIC_URL
+              value: https://babel-archive.federicoserini.com
+            - name: BABEL_OIDC_ISSUER
+              value: https://gatekeeper.federicoserini.com/realms/homelab
+            - name: BABEL_OIDC_JWKS_URL
+              value: http://keycloak-keycloakx-http.keycloak.svc.cluster.local/realms/homelab/protocol/openid-connect/certs
+            - name: BABEL_OIDC_TOKEN_URL
+              value: http://keycloak-keycloakx-http.keycloak.svc.cluster.local/realms/homelab/protocol/openid-connect/token
+            - name: BABEL_OIDC_CLIENT_ID
+              value: babel-archive
+            - name: BABEL_OCR_ENGINE
+              value: rapid
+          envFrom:
+            - secretRef:
+                name: babel-archive-secret
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "3"
+              memory: 5Gi
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 30
+            failureThreshold: 4
+          volumeMounts:
+            - name: archive
+              mountPath: /archive
+            - name: db
+              mountPath: /data
+            - name: models
+              mountPath: /models
+      imagePullSecrets:
+        - name: ghcr-login-secret
+      volumes:
+        - name: archive
+          persistentVolumeClaim:
+            claimName: babel-archive-nfs
+        - name: db
+          persistentVolumeClaim:
+            claimName: babel-archive-db
+        - name: models
+          persistentVolumeClaim:
+            claimName: babel-archive-models

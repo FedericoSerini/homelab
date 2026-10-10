@@ -1,0 +1,61 @@
+# Archive of documents: static NFS volume on the NAS, kept on delete (Retain).
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: babel-archive-nfs
+spec:
+  capacity:
+    storage: 1Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - nfsvers=4.1
+    - hard
+    - noatime
+  nfs:
+    server: 192.168.1.52
+    path: /volume1/babel-archive
+  claimRef:
+    namespace: babel-archive
+    name: babel-archive-nfs
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: babel-archive-nfs
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: babel-archive-nfs
+  resources:
+    requests:
+      storage: 1Ti
+---
+# Catalog (SQLite): small block volume, never on NFS. Rebuildable from the archive.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: babel-archive-db
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: synology-iscsi-storage
+  resources:
+    requests:
+      storage: 1Gi
+---
+# Layout and OCR model cache (downloaded on first use).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: babel-archive-models
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: synology-iscsi-storage
+  resources:
+    requests:
+      storage: 4Gi
