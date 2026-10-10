@@ -15,7 +15,7 @@ APPS:
 
 INFRA CONTROLLERS (HelmReleases in ns matching name):
   ✅ cloudnative-pg-operator@0.23.1   ✅ external-dns@1.15.0
-  ✅ mariadb-operator@0.28.1          ✅ mongodb-operator@0.13.0
+
   ✅ falco@9.0.0                      ✅ keycloakx@7.2.0
   ✅ falco-talon@0.4.0
   ✅ kube-prometheus-stack@68.5.0 
