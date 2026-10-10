@@ -20,8 +20,6 @@ spec:
       secret:
         name: babel-pg-secret
   enableSuperuserAccess: false
-  monitoring:
-    enablePodMonitor: true
   storage:
     size: 5Gi
     storageClass: synology-iscsi-storage
