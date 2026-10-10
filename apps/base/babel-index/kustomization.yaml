@@ -6,3 +6,9 @@ resources:
   - storage.yaml
   - deployment.yaml
   - service.yaml
+  - backup.yaml
+  - monitoring.yaml
+configMapGenerator:
+  - name: babel-backup-scripts
+    files:
+      - scripts/qdrant_snapshot.py

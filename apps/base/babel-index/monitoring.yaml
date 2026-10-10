@@ -1,0 +1,74 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: babel-index
+spec:
+  selector:
+    matchLabels:
+      app: babel-index
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: qdrant
+spec:
+  selector:
+    matchLabels:
+      app: qdrant
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 60s
+      authorization:
+        type: Bearer
+        credentials:
+          name: babel-index-secret
+          key: BABEL_QDRANT_API_KEY
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: babel-index
+spec:
+  groups:
+    - name: babel-index
+      rules:
+        - alert: BabelIndexDown
+          expr: up{namespace="babel-index", service="babel-index"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: babel-index metrics endpoint is down
+        - alert: BabelJobsFailing
+          expr: increase(babel_jobs_finished_total{status="failed"}[1h]) > 0
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: babel-index background jobs are failing
+        - alert: BabelAuthFailuresBurst
+          expr: sum(rate(babel_auth_failures_total[10m])) > 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: sustained rejected credentials on the public API
+        - alert: BabelPgBackupStale
+          expr: time() - kube_cronjob_status_last_successful_time{namespace="babel-index", cronjob="babel-pg-dump"} > 36 * 3600
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: babel-index PostgreSQL dump has not succeeded for 36h
+        - alert: BabelQdrantSnapshotStale
+          expr: time() - kube_cronjob_status_last_successful_time{namespace="babel-index", cronjob="babel-qdrant-snapshot"} > 9 * 24 * 3600
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Qdrant snapshot has not succeeded for 9 days

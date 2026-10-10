@@ -1,0 +1,125 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: babel-backups-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: synology-iscsi-storage
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: babel-pg-dump
+spec:
+  schedule: "30 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
+            fsGroup: 10001
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: dump
+              image: ghcr.io/cloudnative-pg/postgresql:17.4
+              command: ["sh", "-ec"]
+              args:
+                - |
+                  mkdir -p /backups/pg
+                  f=/backups/pg/babel-$(date -u +%Y%m%dT%H%M%SZ).dump
+                  pg_dump --format=custom --no-owner --dbname="$BABEL_PG_DSN" --file="$f.part"
+                  pg_restore --list "$f.part" > /dev/null
+                  mv "$f.part" "$f"
+                  find /backups/pg -name 'babel-*.dump' -mtime +14 -delete
+                  ls -l "$f"
+              envFrom:
+                - secretRef:
+                    name: babel-index-secret
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                limits:
+                  memory: 512Mi
+              volumeMounts:
+                - name: backups
+                  mountPath: /backups
+          volumes:
+            - name: backups
+              persistentVolumeClaim:
+                claimName: babel-backups-pvc
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: babel-qdrant-snapshot
+spec:
+  schedule: "30 3 * * 0"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
+            fsGroup: 10001
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: snapshot
+              image: ghcr.io/federicoserini/babel-index:latest
+              imagePullPolicy: Always
+              command: ["python", "/scripts/qdrant_snapshot.py"]
+              env:
+                - name: BABEL_QDRANT_URL
+                  value: http://qdrant:6333
+              envFrom:
+                - secretRef:
+                    name: babel-index-secret
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                limits:
+                  memory: 512Mi
+              volumeMounts:
+                - name: backups
+                  mountPath: /backups
+                - name: scripts
+                  mountPath: /scripts
+          imagePullSecrets:
+            - name: ghcr-login-secret
+          volumes:
+            - name: backups
+              persistentVolumeClaim:
+                claimName: babel-backups-pvc
+            - name: scripts
+              configMap:
+                name: babel-backup-scripts

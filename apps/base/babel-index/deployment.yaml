@@ -26,6 +26,8 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
+            - containerPort: 9100
+              name: metrics
           env:
             - name: BABEL_QDRANT_URL
               value: http://qdrant:6333
