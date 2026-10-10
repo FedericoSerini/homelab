@@ -4,8 +4,6 @@ resources:
   - falco
   - falco-talon
   - cloudnative-pg-operator
-  - mariadb-operator
   - external-dns
   - synology-csi
-  - mongodb-operator
   - keycloak
