@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cortex
+spec:
+  replicas: 1 # SQLite su volume RWO e stato in memoria: una sola replica
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: cortex
+  template:
+    metadata:
+      labels:
+        app: cortex
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: cortex
+          image: ghcr.io/federicoserini/cortex:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: CORTEX_PUBLIC_URL
+              value: https://cortex.federicoserini.com
+            - name: CORTEX_OIDC_ISSUER
+              value: https://gatekeeper.federicoserini.com/realms/homelab
+            - name: CORTEX_OIDC_JWKS_URL
+              value: http://keycloak-keycloakx-http.keycloak.svc.cluster.local/realms/homelab/protocol/openid-connect/certs
+            - name: CORTEX_OIDC_TOKEN_URL
+              value: http://keycloak-keycloakx-http.keycloak.svc.cluster.local/realms/homelab/protocol/openid-connect/token
+            - name: CORTEX_OIDC_CLIENT_ID
+              value: cortex
+          envFrom:
+            - secretRef:
+                name: cortex-secret # CORTEX_SESSION_SECRET, CORTEX_OIDC_CLIENT_SECRET
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+          # tcpSocket: il controllo Host dell'app risponde 400 a un httpGet con l'IP del pod
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            periodSeconds: 15
+          livenessProbe:
+            tcpSocket:
+              port: 8000
+            periodSeconds: 30
+            failureThreshold: 4
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: cortex-data
+      imagePullSecrets:
+        - name: ghcr-login-secret
