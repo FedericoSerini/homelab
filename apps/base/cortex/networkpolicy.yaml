@@ -1,0 +1,97 @@
+# NetworkPolicy del namespace cortex. NB: valgono solo se il CNI le applica (flannel da solo no: serve un controller come kube-network-policies o Cilium).
+# Il pod `cortex` ha due container (cortex + agent) e la policy vale per tutto il pod: l'agent può raggiungere ciò che raggiunge Cortex.
+# Scopo: niente rete interna oltre DNS e Keycloak, niente metadati cloud, niente altri servizi del cluster.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cortex-ingress
+spec:
+  podSelector:
+    matchLabels:
+      app: cortex
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: cloudflared
+      ports:
+        - port: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cortex-egress
+spec:
+  podSelector:
+    matchLabels:
+      app: cortex
+  policyTypes: [Egress]
+  egress:
+    - to: # DNS
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - { port: 53, protocol: UDP }
+        - { port: 53, protocol: TCP }
+    - to: # Keycloak: JWKS e scambio del codice (porta nominata del pod)
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: keycloak
+      ports:
+        - port: http
+    - to: # Anthropic, host git (https e ssh), registri: Internet ma non le reti private, CGNAT/Tailscale e link-local (metadati)
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 100.64.0.0/10, 169.254.0.0/16]
+      ports:
+        - { port: 443, protocol: TCP }
+        - { port: 22, protocol: TCP }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cloudflared-egress
+spec:
+  podSelector:
+    matchLabels:
+      app: cloudflared
+  policyTypes: [Egress]
+  egress:
+    - to: # DNS
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - { port: 53, protocol: UDP }
+        - { port: 53, protocol: TCP }
+    - to: # verso l'app
+        - podSelector:
+            matchLabels:
+              app: cortex
+      ports:
+        - port: 8000
+    - to: # rete Cloudflare
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 100.64.0.0/10, 169.254.0.0/16]
+      ports:
+        - { port: 443, protocol: TCP }
+        - { port: 443, protocol: UDP }
+        - { port: 7844, protocol: TCP }
+        - { port: 7844, protocol: UDP }

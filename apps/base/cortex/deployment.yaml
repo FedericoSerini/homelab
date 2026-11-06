@@ -21,6 +21,20 @@ spec:
         fsGroup: 10001
         seccompProfile:
           type: RuntimeDefault
+      initContainers:
+        # I subPath mancanti li crea kubelet come root: l'agent (utente 10001) non potrebbe scriverci.
+        - name: dirs
+          image: ghcr.io/federicoserini/cortex:latest
+          imagePullPolicy: Always
+          command: ["mkdir", "-p", "/data/sandboxes", "/data/agent-home", "/data/agent-home-endpoint", "/data/prompts"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
       containers:
         - name: cortex
           image: ghcr.io/federicoserini/cortex:latest
@@ -38,6 +52,13 @@ spec:
               value: http://keycloak-keycloakx-http.keycloak.svc.cluster.local/realms/homelab/protocol/openid-connect/token
             - name: CORTEX_OIDC_CLIENT_ID
               value: cortex
+            - name: CORTEX_AGENT_URL
+              value: http://127.0.0.1:9000 # il container agent, nello stesso pod
+            - name: CORTEX_AGENT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: cortex-agent-secret
+                  key: CORTEX_AGENT_TOKEN
           envFrom:
             - secretRef:
                 name: cortex-secret # CORTEX_SESSION_SECRET, CORTEX_OIDC_CLIENT_SECRET
@@ -64,7 +85,40 @@ spec:
               port: 8000
             periodSeconds: 30
             failureThreshold: 4
+        # Il codice dell'agent gira qui, non in `cortex`: questo container vede solo le cartelle delle sessioni e la HOME dell'agent,
+        # non il database, i repository, la chiave git né i segreti di Cortex (nemmeno come variabili d'ambiente).
+        - name: agent
+          image: ghcr.io/federicoserini/cortex:latest
+          imagePullPolicy: Always
+          command: ["cortex-agent"]
+          env:
+            - name: CORTEX_DATA_DIR
+              value: /data
+            - name: CORTEX_AGENT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: cortex-agent-secret
+                  key: CORTEX_AGENT_TOKEN
+          volumeMounts:
+            - { name: data, mountPath: /data/sandboxes, subPath: sandboxes }
+            - { name: data, mountPath: /data/agent-home, subPath: agent-home }
+            - { name: data, mountPath: /data/agent-home-endpoint, subPath: agent-home-endpoint }
+            - { name: data, mountPath: /data/prompts, subPath: prompts, readOnly: true }
+            - { name: tmp, mountPath: /tmp }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              memory: 2Gi
       volumes:
+        - name: tmp
+          emptyDir: {}
         - name: data
           persistentVolumeClaim:
             claimName: cortex-data

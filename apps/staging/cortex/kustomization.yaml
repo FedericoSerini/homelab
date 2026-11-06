@@ -7,3 +7,4 @@ resources:
   - tunnel-credentials.yaml
   - ghcr-login-secret.yaml
   - cortex-secret.yaml
+  - cortex-agent-secret.yaml
