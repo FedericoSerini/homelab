@@ -25,7 +25,7 @@ spec:
         # I subPath mancanti li crea kubelet come root: l'agent (utente 10001) non potrebbe scriverci.
         - name: dirs
           image: ghcr.io/federicoserini/cortex:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent # il nodo raggiunge ghcr.io a intermittenza; per aggiornare, cambia il tag (vedi sha della pipeline)
           command: ["mkdir", "-p", "/data/sandboxes", "/data/agent-home", "/data/agent-home-endpoint", "/data/prompts"]
           volumeMounts:
             - name: data
@@ -38,7 +38,7 @@ spec:
       containers:
         - name: cortex
           image: ghcr.io/federicoserini/cortex:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent # il nodo raggiunge ghcr.io a intermittenza; per aggiornare, cambia il tag (vedi sha della pipeline)
           ports:
             - containerPort: 8000
           env:
@@ -89,7 +89,7 @@ spec:
         # non il database, i repository, la chiave git né i segreti di Cortex (nemmeno come variabili d'ambiente).
         - name: agent
           image: ghcr.io/federicoserini/cortex:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent # il nodo raggiunge ghcr.io a intermittenza; per aggiornare, cambia il tag (vedi sha della pipeline)
           command: ["cortex-agent"]
           env:
             - name: CORTEX_DATA_DIR
