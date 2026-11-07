@@ -25,7 +25,7 @@ spec:
         # I subPath mancanti li crea kubelet come root: l'agent (utente 10001) non potrebbe scriverci.
         - name: dirs
           image: ghcr.io/federicoserini/cortex:latest
-          imagePullPolicy: IfNotPresent # il nodo raggiunge ghcr.io a intermittenza; per aggiornare, cambia il tag (vedi sha della pipeline)
+          imagePullPolicy: Always # :latest viene riscaricato a ogni avvio del pod; con IfNotPresent il nodo teneva sempre l'immagine in cache
           # La deploy key git: ssh rifiuta una chiave leggibile dal gruppo (con fsGroup i secret lo sono), quindi la copio con modo 600.
           # Resta nella cartella di git di Cortex, che il container agent non monta.
           command:
@@ -49,7 +49,7 @@ spec:
       containers:
         - name: cortex
           image: ghcr.io/federicoserini/cortex:latest
-          imagePullPolicy: IfNotPresent # il nodo raggiunge ghcr.io a intermittenza; per aggiornare, cambia il tag (vedi sha della pipeline)
+          imagePullPolicy: Always # :latest viene riscaricato a ogni avvio del pod; con IfNotPresent il nodo teneva sempre l'immagine in cache
           ports:
             - containerPort: 8000
           env:
@@ -102,7 +102,7 @@ spec:
         # non il database, i repository, la chiave git né i segreti di Cortex (nemmeno come variabili d'ambiente).
         - name: agent
           image: ghcr.io/federicoserini/cortex:latest
-          imagePullPolicy: IfNotPresent # il nodo raggiunge ghcr.io a intermittenza; per aggiornare, cambia il tag (vedi sha della pipeline)
+          imagePullPolicy: Always # :latest viene riscaricato a ogni avvio del pod; con IfNotPresent il nodo teneva sempre l'immagine in cache
           command: ["cortex-agent"]
           env:
             - name: CORTEX_DATA_DIR
