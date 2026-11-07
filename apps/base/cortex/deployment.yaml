@@ -26,10 +26,21 @@ spec:
         - name: dirs
           image: ghcr.io/federicoserini/cortex:latest
           imagePullPolicy: IfNotPresent # il nodo raggiunge ghcr.io a intermittenza; per aggiornare, cambia il tag (vedi sha della pipeline)
-          command: ["mkdir", "-p", "/data/sandboxes", "/data/agent-home", "/data/agent-home-endpoint", "/data/prompts"]
+          # La deploy key git: ssh rifiuta una chiave leggibile dal gruppo (con fsGroup i secret lo sono), quindi la copio con modo 600.
+          # Resta nella cartella di git di Cortex, che il container agent non monta.
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              mkdir -p /data/sandboxes /data/agent-home /data/agent-home-endpoint /data/prompts /data/git-home
+              if [ -f /git-key/id_ed25519 ]; then install -m 600 /git-key/id_ed25519 /data/git-home/id_ed25519; fi
           volumeMounts:
             - name: data
               mountPath: /data
+            - name: git-key
+              mountPath: /git-key
+              readOnly: true
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -52,6 +63,8 @@ spec:
               value: http://keycloak-keycloakx-http.keycloak.svc.cluster.local/realms/homelab/protocol/openid-connect/token
             - name: CORTEX_OIDC_CLIENT_ID
               value: cortex
+            - name: CORTEX_GIT_SSH_KEY
+              value: /data/git-home/id_ed25519 # deploy key in sola lettura, copiata dall'init container
             - name: CORTEX_AGENT_URL
               value: http://127.0.0.1:9000 # il container agent, nello stesso pod
             - name: CORTEX_AGENT_TOKEN
@@ -119,6 +132,10 @@ spec:
       volumes:
         - name: tmp
           emptyDir: {}
+        - name: git-key
+          secret:
+            secretName: cortex-git-secret
+            optional: true # senza il secret il pod parte lo stesso, ma i repository privati non si clonano
         - name: data
           persistentVolumeClaim:
             claimName: cortex-data

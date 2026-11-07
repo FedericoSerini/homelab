@@ -8,3 +8,4 @@ resources:
   - ghcr-login-secret.yaml
   - cortex-secret.yaml
   - cortex-agent-secret.yaml
+  - cortex-git-secret.yaml
