@@ -27,6 +27,8 @@ spec:
           ports:
             - containerPort: 8080
           env:
+            - name: BABEL_ARCHIVE_INGEST_COLLECTIONS # le uniche collezioni in cui il token di ingestione può scrivere (devono esistere in babel-index)
+              value: cortex-sessioni,cortex-libreria
             - name: BABEL_ARCHIVE_ROOT
               value: /archive
             - name: BABEL_ARCHIVE_DB
@@ -48,6 +50,9 @@ spec:
           envFrom:
             - secretRef:
                 name: babel-archive-secret
+            - secretRef:
+                name: babel-archive-ingest-secret # BABEL_ARCHIVE_INGEST_TOKEN: Cortex invia qui sessioni e libreria (PUT /api/ingest)
+                optional: true
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

@@ -7,3 +7,4 @@ resources:
   - tunnel-credentials.yaml
   - babel-archive-secret.yaml
   - ghcr-login-secret.yaml
+  - babel-archive-ingest-secret.yaml

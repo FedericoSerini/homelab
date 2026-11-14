@@ -64,6 +64,18 @@ spec:
               kubernetes.io/metadata.name: keycloak
       ports:
         - port: http
+    - to: # Babel: invio a babel-archive e lettura da babel-index
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: babel-archive
+      ports:
+        - port: 8080
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: babel-index
+      ports:
+        - port: 8080
     - to: # l'agent-runner (R28)
         - podSelector:
             matchLabels:
