@@ -1,0 +1,80 @@
+# R48: l'agent di triage. Stessa immagine dell'agent normale, ma con un ServiceAccount di sola lettura sul cluster (triage-rbac.yaml), la sua HOME (un login Anthropic suo:
+# `kubectl exec -it deploy/cortex-triage -- env HOME=/data/agent-home claude login`) e `kubectl`. L'agent normale non ha nessun accesso al cluster.
+# Monta le cartelle delle sessioni come l'agent normale (Cortex le crea lì): potrebbe leggere i sorgenti di altre sessioni.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cortex-triage
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: cortex-triage
+  template:
+    metadata:
+      labels:
+        app: cortex-triage
+    spec:
+      serviceAccountName: cortex-triage
+      automountServiceAccountToken: true # serve a kubectl; il ruolo è di sola lettura
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: cortex
+      containers:
+        # Non vede il database, i repository, la chiave git né i segreti di Cortex.
+        - name: agent
+          image: ghcr.io/federicoserini/cortex:latest
+          imagePullPolicy: Always # :latest viene riscaricato a ogni avvio del pod; con IfNotPresent il nodo teneva sempre l'immagine in cache
+          command: ["cortex-agent"]
+          ports:
+            - containerPort: 9000
+          env:
+            - name: CORTEX_DATA_DIR
+              value: /data
+            - name: CORTEX_AGENT_HOST
+              value: 0.0.0.0 # raggiungibile dagli altri pod: lo restringe la NetworkPolicy (solo `cortex`) e il token
+            - name: CORTEX_AGENT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: cortex-triage-secret
+                  key: agent-token
+          volumeMounts:
+            - { name: data, mountPath: /data/sandboxes, subPath: sandboxes }
+            - { name: data, mountPath: /data/agent-home, subPath: agent-home-triage }
+            - { name: data, mountPath: /data/prompts, subPath: prompts, readOnly: true }
+            - { name: tmp, mountPath: /tmp }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          readinessProbe:
+            tcpSocket:
+              port: 9000
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              memory: 2Gi
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: data
+          persistentVolumeClaim:
+            claimName: cortex-data
+      imagePullSecrets:
+        - name: ghcr-login-secret

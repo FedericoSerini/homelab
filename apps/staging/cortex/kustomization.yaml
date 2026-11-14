@@ -10,3 +10,4 @@ resources:
   - cortex-agent-secret.yaml
   - cortex-git-secret.yaml
   - cortex-metrics-secret.yaml
+  - cortex-triage-secret.yaml

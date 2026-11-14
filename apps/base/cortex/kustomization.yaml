@@ -6,6 +6,9 @@ resources:
   - deployment.yaml
   - agent-deployment.yaml
   - agent-service.yaml
+  - triage-rbac.yaml
+  - triage-deployment.yaml
+  - triage-service.yaml
   - service.yaml
   - networkpolicy.yaml
   - servicemonitor.yaml

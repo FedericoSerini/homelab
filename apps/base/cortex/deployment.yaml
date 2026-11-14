@@ -33,7 +33,7 @@ spec:
             - -c
             - |
               set -e
-              mkdir -p /data/sandboxes /data/agent-home /data/agent-home-endpoint /data/prompts /data/git-home
+              mkdir -p /data/sandboxes /data/agent-home /data/agent-home-endpoint /data/agent-home-triage /data/prompts /data/git-home
               if [ -f /git-key/id_ed25519 ]; then install -m 600 /git-key/id_ed25519 /data/git-home/id_ed25519; fi
           volumeMounts:
             - name: data
@@ -72,6 +72,20 @@ spec:
                 secretKeyRef:
                   name: cortex-agent-secret
                   key: CORTEX_AGENT_TOKEN
+            - name: CORTEX_TRIAGE_PROJECT # R48: il progetto (da creare in Cortex, senza repository) le cui sessioni girano sull'agent di triage
+              value: homelab
+            - name: CORTEX_TRIAGE_AGENT_URL
+              value: http://cortex-triage:9000
+            - name: CORTEX_TRIAGE_AGENT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: cortex-triage-secret
+                  key: agent-token
+            - name: CORTEX_ALERTMANAGER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: cortex-triage-secret
+                  key: alertmanager-token
             - name: CORTEX_METRICS_TOKEN # R21: /metrics per Prometheus
               valueFrom:
                 secretKeyRef:

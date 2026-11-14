@@ -64,6 +64,12 @@ spec:
               app: cortex-agent
       ports:
         - port: 9000
+    - to: # l'agent di triage (R48)
+        - podSelector:
+            matchLabels:
+              app: cortex-triage
+      ports:
+        - port: 9000
     - to: # Anthropic, host git (https e ssh), registri: Internet ma non le reti private, CGNAT/Tailscale e link-local (metadati)
         - ipBlock:
             cidr: 0.0.0.0/0
@@ -116,6 +122,61 @@ spec:
       ports:
         - { port: 443, protocol: TCP }
         - { port: 22, protocol: TCP }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cortex-triage-ingress
+spec:
+  podSelector:
+    matchLabels:
+      app: cortex-triage
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: cortex
+      ports:
+        - port: 9000
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cortex-triage-egress
+spec:
+  podSelector:
+    matchLabels:
+      app: cortex-triage
+  policyTypes: [Egress]
+  egress:
+    - to: # DNS
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - { port: 53, protocol: UDP }
+        - { port: 53, protocol: TCP }
+    - to: # API server (indirizzo dell'endpoint `kubernetes`: `kubectl get endpoints kubernetes`; cambia se cambia il nodo)
+        - ipBlock:
+            cidr: 100.107.15.108/32
+      ports:
+        - { port: 6443, protocol: TCP }
+    - to: # Prometheus, per le query PromQL
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - { port: 9090, protocol: TCP }
+    - to: # Anthropic: Internet pubblico, non le reti private
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 100.64.0.0/10, 169.254.0.0/16]
+      ports:
+        - { port: 443, protocol: TCP }
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
