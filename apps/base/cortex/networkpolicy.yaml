@@ -121,6 +121,15 @@ spec:
       ports:
         - { port: 53, protocol: UDP }
         - { port: 53, protocol: TCP }
+    - to: # babel-mcp (R39): la conoscenza di Babel per le sessioni dei progetti che l'hanno attivata
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: babel-index
+          podSelector:
+            matchLabels:
+              app: babel-mcp
+      ports:
+        - port: 8000
     - to: # Cortex, solo per i permessi chiesti dal vivo (R31)
         - podSelector:
             matchLabels:

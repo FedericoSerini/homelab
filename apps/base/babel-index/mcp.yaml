@@ -1,0 +1,66 @@
+# babel-mcp in modalità HTTP (R39): lo usa l'agent di Cortex, che non può lanciare un processo stdio. Non ha credenziali: ogni richiesta porta la chiave di babel-index
+# del progetto come Bearer e il server la inoltra così com'è, quindi ogni progetto vede solo le collezioni della sua chiave.
+# Solo ClusterIP: nessun tunnel, nessun hostname pubblico (il testo dei documenti e la chiave non devono passare da fuori).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: babel-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: babel-mcp
+  template:
+    metadata:
+      labels:
+        app: babel-mcp
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: babel-mcp
+          image: ghcr.io/federicoserini/babel-mcp:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: BABEL_API_URL
+              value: http://babel-index:8080
+            - name: BABEL_MCP_ALLOWED_HOSTS
+              value: babel-mcp:8000,babel-mcp.babel-index.svc:8000,babel-mcp.babel-index.svc.cluster.local:8000
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              memory: 256Mi
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            periodSeconds: 15
+      imagePullSecrets:
+        - name: ghcr-login-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: babel-mcp
+  labels:
+    app: babel-mcp
+spec:
+  ports:
+    - port: 8000
+      name: http
+  selector:
+    app: babel-mcp
+  type: ClusterIP

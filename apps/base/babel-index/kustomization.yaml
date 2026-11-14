@@ -6,6 +6,7 @@ resources:
   - storage.yaml
   - deployment.yaml
   - service.yaml
+  - mcp.yaml
   - backup.yaml
   - monitoring.yaml
 configMapGenerator:
