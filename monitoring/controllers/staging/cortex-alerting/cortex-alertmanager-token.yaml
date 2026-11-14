@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: cortex-alertmanager-token
+    namespace: monitoring
+stringData:
+    token: ENC[AES256_GCM,data:CLxCOlJoiIZ4GlTljWbBQEoOMumiozeXdIW9Hu6TDRUuaAAGOMbt9p9b3X9InUZs,iv:xKTVjw266XsXDtCzJabAXnLCzPDcRrjJk1ghU8yjj40=,tag:qsAk+ixwB1s4IDJd9avddg==,type:str]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age1jjf7zau7j8jg43nkrwcztazmneg39vyn9q4tx4sjkg0d0jt6l5wq4w8ek2
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBIK1VxdG1jaFBlSk1jZjZ5
+            MWlnUnAzY0Z1NUhkUTQ2WmNIMW0rd0UrWmlVCk81QXcwd2ttZEdjdW56UGdRMkJu
+            YlV4Q3JPMG02K296Z1cxTDlrbWFHUWcKLS0tIDRZUWxhdWxzWHJBT09TVWMxK1p3
+            dE9LSGpaWCtyejh6eHl2bW9KVTlkY0kK/KP0u7qSZLmFgomiOCvBcmYQ2zx6Fhu2
+            BZdZiix37atDgLavPiKMOjxobMRBe8+8lm8bmyOlmxpdjrQBkeItCg==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2026-11-14T13:50:49Z"
+    mac: ENC[AES256_GCM,data:VZv5OAlx9g0+aaQDjwIt/13RaqYWw5N/AFQFZXJiO8SP9X/PKwSxHY14/PANbzCq21mj1br2MqWXGv+PlzdmDBPN3U7Pgs5qZAREr2OeEyN7PEvfsYNJij833nkzjkSjOAJGP6U/Tx2thq8+WgzVFhmIRGD14UH6ygv0l12jFxg=,iv:a1UUzn3IGwQAaczb5pjnVfw1LARb/G3mi/eZRlScvmc=,tag:CCt/OlFTKLoi70zToK3B0Q==,type:str]
+    pgp: []
+    encrypted_regex: ^(data|stringData)$
+    version: 3.9.4
