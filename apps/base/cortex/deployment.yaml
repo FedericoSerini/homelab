@@ -66,12 +66,17 @@ spec:
             - name: CORTEX_GIT_SSH_KEY
               value: /data/git-home/id_ed25519 # deploy key in sola lettura, copiata dall'init container
             - name: CORTEX_AGENT_URL
-              value: http://127.0.0.1:9000 # il container agent, nello stesso pod
+              value: http://cortex-agent:9000 # l'agent gira in un pod separato (cortex-agent), vedi agent-deployment.yaml
             - name: CORTEX_AGENT_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: cortex-agent-secret
                   key: CORTEX_AGENT_TOKEN
+            - name: CORTEX_METRICS_TOKEN # R21: /metrics per Prometheus
+              valueFrom:
+                secretKeyRef:
+                  name: cortex-metrics-secret
+                  key: token
           envFrom:
             - secretRef:
                 name: cortex-secret # CORTEX_SESSION_SECRET, CORTEX_OIDC_CLIENT_SECRET
@@ -98,40 +103,7 @@ spec:
               port: 8000
             periodSeconds: 30
             failureThreshold: 4
-        # Il codice dell'agent gira qui, non in `cortex`: questo container vede solo le cartelle delle sessioni e la HOME dell'agent,
-        # non il database, i repository, la chiave git né i segreti di Cortex (nemmeno come variabili d'ambiente).
-        - name: agent
-          image: ghcr.io/federicoserini/cortex:latest
-          imagePullPolicy: Always # :latest viene riscaricato a ogni avvio del pod; con IfNotPresent il nodo teneva sempre l'immagine in cache
-          command: ["cortex-agent"]
-          env:
-            - name: CORTEX_DATA_DIR
-              value: /data
-            - name: CORTEX_AGENT_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: cortex-agent-secret
-                  key: CORTEX_AGENT_TOKEN
-          volumeMounts:
-            - { name: data, mountPath: /data/sandboxes, subPath: sandboxes }
-            - { name: data, mountPath: /data/agent-home, subPath: agent-home }
-            - { name: data, mountPath: /data/agent-home-endpoint, subPath: agent-home-endpoint }
-            - { name: data, mountPath: /data/prompts, subPath: prompts, readOnly: true }
-            - { name: tmp, mountPath: /tmp }
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop: ["ALL"]
-          resources:
-            requests:
-              cpu: 200m
-              memory: 512Mi
-            limits:
-              memory: 2Gi
       volumes:
-        - name: tmp
-          emptyDir: {}
         - name: git-key
           secret:
             secretName: cortex-git-secret

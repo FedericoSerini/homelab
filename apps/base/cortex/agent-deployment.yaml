@@ -1,0 +1,80 @@
+# R28: l'agent in un pod suo. Prima era un secondo container del pod `cortex` e la NetworkPolicy valeva per tutti e due: ora l'agent ha una policy
+# propria (niente Keycloak, niente cartella dei dati di Cortex) e parla solo con Cortex, sulla porta 9000 e con il token condiviso.
+# Il volume `cortex-data` è RWO: i due pod lo montano insieme solo se girano sullo stesso nodo (oggi c'è un solo nodo; l'affinità lo garantisce se ne arrivano altri).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cortex-agent
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: cortex-agent
+  template:
+    metadata:
+      labels:
+        app: cortex-agent
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: cortex
+      containers:
+        # Vede solo le cartelle delle sessioni e la HOME dell'agent, non il database, i repository, la chiave git né i segreti di Cortex.
+        - name: agent
+          image: ghcr.io/federicoserini/cortex:latest
+          imagePullPolicy: Always # :latest viene riscaricato a ogni avvio del pod; con IfNotPresent il nodo teneva sempre l'immagine in cache
+          command: ["cortex-agent"]
+          ports:
+            - containerPort: 9000
+          env:
+            - name: CORTEX_DATA_DIR
+              value: /data
+            - name: CORTEX_AGENT_HOST
+              value: 0.0.0.0 # raggiungibile dagli altri pod: lo restringe la NetworkPolicy (solo `cortex`) e il token
+            - name: CORTEX_AGENT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: cortex-agent-secret
+                  key: CORTEX_AGENT_TOKEN
+          volumeMounts:
+            - { name: data, mountPath: /data/sandboxes, subPath: sandboxes }
+            - { name: data, mountPath: /data/agent-home, subPath: agent-home }
+            - { name: data, mountPath: /data/agent-home-endpoint, subPath: agent-home-endpoint }
+            - { name: data, mountPath: /data/prompts, subPath: prompts, readOnly: true }
+            - { name: tmp, mountPath: /tmp }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          readinessProbe:
+            tcpSocket:
+              port: 9000
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              memory: 2Gi
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: data
+          persistentVolumeClaim:
+            claimName: cortex-data
+      imagePullSecrets:
+        - name: ghcr-login-secret

@@ -1,0 +1,17 @@
+# R21: Prometheus legge /metrics di Cortex ogni minuto, con il token del Secret `cortex-metrics-secret` (CORTEX_METRICS_TOKEN lato Cortex).
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cortex
+spec:
+  selector:
+    matchLabels: {}
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 60s
+      authorization:
+        type: Bearer
+        credentials:
+          name: cortex-metrics-secret
+          key: token

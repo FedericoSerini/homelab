@@ -4,5 +4,8 @@ resources:
   - namespace.yaml
   - pvc.yaml
   - deployment.yaml
+  - agent-deployment.yaml
+  - agent-service.yaml
   - service.yaml
   - networkpolicy.yaml
+  - servicemonitor.yaml

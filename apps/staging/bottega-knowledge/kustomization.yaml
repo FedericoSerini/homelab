@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: bottega-knowledge
+resources:
+  - ../../base/bottega-knowledge/
+  - cloudflare.yaml
+  # Not yet added — see TODO.md in this directory:
+  #   - tunnel-credentials.yaml   (SOPS-encrypted, needs `cloudflared tunnel create`)
+  #   - bottega-knowledge-secret.yaml  (SOPS-encrypted, needs BOTTEGA_KNOWLEDGE_TOKEN)
+  #   - ghcr-login-secret.yaml    (SOPS-encrypted, needs ghcr push access)

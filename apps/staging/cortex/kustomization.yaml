@@ -9,3 +9,4 @@ resources:
   - cortex-secret.yaml
   - cortex-agent-secret.yaml
   - cortex-git-secret.yaml
+  - cortex-metrics-secret.yaml
