@@ -17,6 +17,7 @@ spec:
       labels:
         app: cortex-triage
     spec:
+      enableServiceLinks: false # senza, kubernetes inietta CORTEX_AGENT_PORT=tcp://… (dal Service `cortex-agent`) e il runner non parte
       serviceAccountName: cortex-triage
       automountServiceAccountToken: true # serve a kubectl; il ruolo è di sola lettura
       securityContext:
