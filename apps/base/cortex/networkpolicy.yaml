@@ -25,6 +25,12 @@ spec:
               app: cloudflared
       ports:
         - port: 8000
+    - from: # l'agent, per i permessi chiesti dal vivo (R31): /permission-mcp/<sessione>, protetto da un token per sessione
+        - podSelector:
+            matchLabels:
+              app: cortex-agent
+      ports:
+        - port: 8000
     - from: # Prometheus (/metrics) e Alertmanager (webhook di triage, R48)
         - namespaceSelector:
             matchLabels:
@@ -115,6 +121,12 @@ spec:
       ports:
         - { port: 53, protocol: UDP }
         - { port: 53, protocol: TCP }
+    - to: # Cortex, solo per i permessi chiesti dal vivo (R31)
+        - podSelector:
+            matchLabels:
+              app: cortex
+      ports:
+        - port: 8000
     - to: # Anthropic e host git: Internet pubblico, non le reti private (LAN, pod, servizi), CGNAT/Tailscale e link-local (metadati)
         - ipBlock:
             cidr: 0.0.0.0/0

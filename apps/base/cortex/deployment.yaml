@@ -87,6 +87,8 @@ spec:
                 secretKeyRef:
                   name: cortex-triage-secret
                   key: alertmanager-token
+            - name: CORTEX_INTERNAL_URL # R31: come l'agent raggiunge Cortex per i permessi chiesti dal vivo
+              value: http://cortex:8000
             - name: CORTEX_METRICS_TOKEN # R21: /metrics per Prometheus
               valueFrom:
                 secretKeyRef:
